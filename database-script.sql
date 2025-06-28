@@ -109,3 +109,67 @@ VALUES ('john_doe', 'hashedpassword1', 'john.doe@example.com', TRUE, (SELECT rol
        ('sarah_brown', 'hashedpassword4', 'sarah.brown@example.com', TRUE, (SELECT role_id FROM warehouse_maker_role), NULL),
        ('david_green', 'hashedpassword5', 'david.green@example.com', TRUE, (SELECT role_id FROM warehouse_checker_role), NULL)
 ON CONFLICT (email) DO NOTHING;
+--===================================================================================================================
+-- Stored Procedure (Function in PostgreSQL) to create a new store and default users
+CREATE OR REPLACE FUNCTION create_store_with_users(
+    _store_name VARCHAR(255),
+    _address VARCHAR(255),
+    _city VARCHAR(100),
+    _state VARCHAR(50),
+    _zip_code VARCHAR(10)
+)
+RETURNS INT AS $$
+DECLARE
+    new_store_id INT;
+    store_maker_role_id INT;
+    store_checker_role_id INT;
+BEGIN
+    -- Get the role_ids for 'store-maker' and 'store-checker'
+    SELECT role_id INTO store_maker_role_id FROM Roles WHERE role_name = 'store-maker';
+    SELECT role_id INTO store_checker_role_id FROM Roles WHERE role_name = 'store-checker';
+
+    -- Insert the new store and get its ID
+    INSERT INTO Stores (store_name, address, city, state, zip_code)
+    VALUES (_store_name, _address, _city, _state, _zip_code)
+    ON CONFLICT (store_name) DO NOTHING
+    RETURNING store_id INTO new_store_id;
+
+    -- If the store already existed, new_store_id might be NULL or the existing ID.
+    -- We need to ensure we have the ID for the store, whether newly created or existing.
+    IF new_store_id IS NULL THEN
+        SELECT store_id INTO new_store_id FROM Stores WHERE store_name = _store_name;
+    END IF;
+
+    -- If store_id is still NULL, it means something went wrong (e.g., role_ids not found)
+    IF new_store_id IS NULL OR store_maker_role_id IS NULL OR store_checker_role_id IS NULL THEN
+        RAISE EXCEPTION 'Failed to create store or retrieve required role IDs. Check if roles exist or store name is truly unique.';
+    END IF;
+
+    -- Create default 'store-maker' user for the new store
+    INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
+    VALUES (LOWER(REPLACE(_store_name, ' ', '')) || '_maker', -- e.g., 'newstore_maker'
+            'default_maker_password_hash',
+            LOWER(REPLACE(_store_name, ' ', '')) || '_maker@example.com',
+            TRUE,
+            store_maker_role_id,
+            new_store_id)
+    ON CONFLICT (email) DO NOTHING; -- Avoid re-inserting if email already exists
+
+    -- Create default 'store-checker' user for the new store
+    INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
+    VALUES (LOWER(REPLACE(_store_name, ' ', '')) || '_checker', -- e.g., 'newstore_checker'
+            'default_checker_password_hash',
+            LOWER(REPLACE(_store_name, ' ', '')) || '_checker@example.com',
+            TRUE,
+            store_checker_role_id,
+            new_store_id)
+    ON CONFLICT (email) DO NOTHING; -- Avoid re-inserting if email already exists
+
+    RETURN new_store_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Example of how to call the function:
+-- SELECT create_store_with_users('New Example Store', '789 Elm St', 'Springfield', 'IL', '62701');
+-- SELECT create_store_with_users('Another Test Store', '100 Market St', 'Portland', 'OR', '97204');
+--===================================================================================================================
