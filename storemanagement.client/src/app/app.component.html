@@ -1,5 +1,9 @@
-<div>
-  <h1>Test App</h1>
-  <p>If you can see this, the basic app is working!</p>
-  <router-outlet></router-outlet>
+<div *ngIf="authService.isAuthenticated(); else loginView">
+  <app-layout>
+    <router-outlet></router-outlet>
+  </app-layout>
 </div>
+
+<ng-template #loginView>
+  <router-outlet></router-outlet>
+</ng-template>

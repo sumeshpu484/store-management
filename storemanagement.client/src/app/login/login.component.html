@@ -90,6 +90,19 @@
                 </button>
               </div>
 
+              <!-- Demo Credentials Info -->
+              <div class="demo-credentials mb-4">
+                <div class="alert alert-info">
+                  <mat-icon class="me-2">info</mat-icon>
+                  <strong>Demo Credentials:</strong>
+                  <ul class="mb-0 mt-2">
+                    <li><strong>Admin:</strong> admin / admin</li>
+                    <li><strong>Manager:</strong> manager / manager123</li>
+                    <li><strong>Cashier:</strong> cashier / cashier123</li>
+                  </ul>
+                </div>
+              </div>
+
               <!-- Error Message -->
               <div *ngIf="loginError" class="error-message mb-3">
                 <mat-error>{{ loginError }}</mat-error>

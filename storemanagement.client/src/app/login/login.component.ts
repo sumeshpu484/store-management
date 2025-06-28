@@ -13,13 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-
-// Modern Angular 16 interface with better typing
-interface LoginCredentials {
-  username: string;
-  password: string;
-  rememberMe: boolean;
-}
+import { AuthService, LoginCredentials } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -39,9 +33,10 @@ interface LoginCredentials {
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  // Modern Angular 16 dependency injection
+  // Modern Angular 17 dependency injection
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   // Traditional properties for state management
   hidePassword = true;
@@ -77,9 +72,14 @@ export class LoginComponent {
     console.log('Login attempt:', credentials);
     
     try {
-      await this.simulateLogin(credentials);
+      // Use the authentication service for login
+      const response = await this.authService.mockLogin(credentials); // Use mockLogin for development
+      // await this.authService.login(credentials); // Use this for production with real API
+      
+      console.log('Login successful!', response.message);
+      await this.router.navigate(['/home']);
     } catch (error) {
-      this.loginError = 'Login failed. Please try again.';
+      this.loginError = error instanceof Error ? error.message : 'Login failed. Please try again.';
       console.error('Login failed:', error);
     } finally {
       this.isLoading = false;
@@ -94,17 +94,6 @@ export class LoginComponent {
 
   togglePasswordVisibility(): void {
     this.hidePassword = !this.hidePassword;
-  }
-
-  private async simulateLogin(credentials: LoginCredentials): Promise<void> {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    console.log('Login successful!', credentials);
-    
-    // TODO: Replace with actual authentication service
-    // await this.authService.login(credentials);
-    // await this.router.navigate(['/dashboard']);
   }
 
   private markFormGroupTouched(): void {

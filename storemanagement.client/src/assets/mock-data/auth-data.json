@@ -1,0 +1,160 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "password": "admin",
+      "email": "admin@storemanagement.com",
+      "role": "admin",
+      "firstName": "System",
+      "lastName": "Administrator",
+      "avatar": "https://ui-avatars.com/api/?name=System+Administrator&background=673ab7&color=fff",
+      "permissions": [
+        "users.read",
+        "users.write",
+        "products.read",
+        "products.write",
+        "orders.read",
+        "orders.write",
+        "reports.read",
+        "settings.write"
+      ],
+      "lastLogin": "2025-06-29T10:30:00Z",
+      "isActive": true,
+      "department": "IT Administration"
+    },
+    {
+      "id": "2",
+      "username": "manager",
+      "password": "manager123",
+      "email": "manager@storemanagement.com",
+      "role": "manager",
+      "firstName": "Store",
+      "lastName": "Manager",
+      "avatar": "https://ui-avatars.com/api/?name=Store+Manager&background=2196f3&color=fff",
+      "permissions": [
+        "products.read",
+        "products.write",
+        "orders.read",
+        "orders.write",
+        "reports.read"
+      ],
+      "lastLogin": "2025-06-28T14:15:00Z",
+      "isActive": true,
+      "department": "Store Operations"
+    },
+    {
+      "id": "3",
+      "username": "cashier",
+      "password": "cashier123",
+      "email": "cashier@storemanagement.com",
+      "role": "cashier",
+      "firstName": "John",
+      "lastName": "Cashier",
+      "avatar": "https://ui-avatars.com/api/?name=John+Cashier&background=4caf50&color=fff",
+      "permissions": [
+        "products.read",
+        "orders.read",
+        "orders.write"
+      ],
+      "lastLogin": "2025-06-29T08:00:00Z",
+      "isActive": true,
+      "department": "Sales"
+    }
+  ],
+  "loginResponses": {
+    "admin": {
+      "success": true,
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQyNjIyfQ.mock-jwt-token-admin",
+      "user": {
+        "id": "1",
+        "username": "admin",
+        "email": "admin@storemanagement.com",
+        "role": "admin",
+        "firstName": "System",
+        "lastName": "Administrator",
+        "avatar": "https://ui-avatars.com/api/?name=System+Administrator&background=673ab7&color=fff",
+        "permissions": [
+          "users.read",
+          "users.write",
+          "products.read",
+          "products.write",
+          "orders.read",
+          "orders.write",
+          "reports.read",
+          "settings.write"
+        ],
+        "department": "IT Administration"
+      },
+      "expiresIn": 3600,
+      "refreshToken": "refresh-token-admin-123456",
+      "message": "Login successful"
+    },
+    "manager": {
+      "success": true,
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwidXNlcm5hbWUiOiJtYW5hZ2VyIiwicm9sZSI6Im1hbmFnZXIiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI0MjYyMn0.mock-jwt-token-manager",
+      "user": {
+        "id": "2",
+        "username": "manager",
+        "email": "manager@storemanagement.com",
+        "role": "manager",
+        "firstName": "Store",
+        "lastName": "Manager",
+        "avatar": "https://ui-avatars.com/api/?name=Store+Manager&background=2196f3&color=fff",
+        "permissions": [
+          "products.read",
+          "products.write",
+          "orders.read",
+          "orders.write",
+          "reports.read"
+        ],
+        "department": "Store Operations"
+      },
+      "expiresIn": 3600,
+      "refreshToken": "refresh-token-manager-789012",
+      "message": "Login successful"
+    },
+    "cashier": {
+      "success": true,
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwidXNlcm5hbWUiOiJjYXNoaWVyIiwicm9sZSI6ImNhc2hpZXIiLCJpYXQiOjE1MTYyMzkwMjIsImV4cCI6MTUxNjI0MjYyMn0.mock-jwt-token-cashier",
+      "user": {
+        "id": "3",
+        "username": "cashier",
+        "email": "cashier@storemanagement.com",
+        "role": "cashier",
+        "firstName": "John",
+        "lastName": "Cashier",
+        "avatar": "https://ui-avatars.com/api/?name=John+Cashier&background=4caf50&color=fff",
+        "permissions": [
+          "products.read",
+          "orders.read",
+          "orders.write"
+        ],
+        "department": "Sales"
+      },
+      "expiresIn": 3600,
+      "refreshToken": "refresh-token-cashier-345678",
+      "message": "Login successful"
+    }
+  },
+  "errorResponses": {
+    "invalidCredentials": {
+      "success": false,
+      "error": "INVALID_CREDENTIALS",
+      "message": "Invalid username or password",
+      "code": 401
+    },
+    "accountLocked": {
+      "success": false,
+      "error": "ACCOUNT_LOCKED",
+      "message": "Account has been locked due to multiple failed login attempts",
+      "code": 423
+    },
+    "accountDisabled": {
+      "success": false,
+      "error": "ACCOUNT_DISABLED",
+      "message": "Account has been disabled. Please contact administrator.",
+      "code": 403
+    }
+  }
+}
