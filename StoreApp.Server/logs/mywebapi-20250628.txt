@@ -1,0 +1,56 @@
+2025-06-28 22:51:59.907 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-06-28 22:52:00.015 +05:30 [INF] User profile is available. Using 'C:\Users\anjal\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-06-28 22:52:00.304 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-06-28 22:52:00.453 +05:30 [INF] Now listening on: https://localhost:7071
+2025-06-28 22:52:00.455 +05:30 [INF] Now listening on: http://localhost:5121
+2025-06-28 22:52:00.460 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-06-28 22:52:00.461 +05:30 [INF] Hosting environment: Development
+2025-06-28 22:52:00.462 +05:30 [INF] Content root path: D:\sumesh\project\store\Repository\store-management\StoreApp.Server
+2025-06-28 22:52:01.604 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger - null null
+2025-06-28 22:52:01.863 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger - 301 0 null 282.2042ms
+2025-06-28 22:52:01.871 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/index.html - null null
+2025-06-28 22:52:02.080 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/index.html - 200 null text/html;charset=utf-8 209.5775ms
+2025-06-28 22:52:02.084 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - null null
+2025-06-28 22:52:02.083 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/swagger-ui.css - null null
+2025-06-28 22:52:02.083 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/swagger-ui-bundle.js - null null
+2025-06-28 22:52:02.083 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/swagger-ui-standalone-preset.js - null null
+2025-06-28 22:52:02.101 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_vs/browserLink - null null
+2025-06-28 22:52:02.124 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - 200 16515 application/javascript; charset=utf-8 40.4054ms
+2025-06-28 22:52:02.212 +05:30 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2025-06-28 22:52:02.214 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/swagger-ui.css - 200 152034 text/css 132.0523ms
+2025-06-28 22:52:02.231 +05:30 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2025-06-28 22:52:02.235 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/swagger-ui-standalone-preset.js - 200 230280 text/javascript 152.3235ms
+2025-06-28 22:52:02.277 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_vs/browserLink - 200 null text/javascript; charset=UTF-8 177.3978ms
+2025-06-28 22:52:02.353 +05:30 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2025-06-28 22:52:02.356 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/swagger-ui-bundle.js - 200 1456926 text/javascript 273.5609ms
+2025-06-28 22:52:02.696 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - null null
+2025-06-28 22:52:02.736 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/favicon-32x32.png - null null
+2025-06-28 22:52:02.746 +05:30 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2025-06-28 22:52:02.750 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/favicon-32x32.png - 200 628 image/png 13.3746ms
+2025-06-28 22:52:02.867 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 171.6905ms
+2025-06-28 22:52:04.366 +05:30 [INF] No SPA development server running at https://localhost:49805 found.
+2025-06-28 22:54:06.486 +05:30 [ERR] Unable to connect to the SPA development server at 'https://localhost:49805'.
+2025-06-28 22:55:08.162 +05:30 [INF] Request starting HTTP/1.1 GET https://127.0.0.1:50201/weatherforecast - null null
+2025-06-28 22:55:10.186 +05:30 [INF] Executing endpoint 'StoreApp.Server.Controllers.WeatherForecastController.Get (StoreApp.Server)'
+2025-06-28 22:55:10.216 +05:30 [INF] Route matched with {action = "Get", controller = "WeatherForecast"}. Executing controller action with signature System.Collections.Generic.IEnumerable`1[StoreApp.Server.WeatherForecast] Get() on controller StoreApp.Server.Controllers.WeatherForecastController (StoreApp.Server).
+2025-06-28 22:55:10.226 +05:30 [INF] Executing ObjectResult, writing value of type 'StoreApp.Server.WeatherForecast[]'.
+2025-06-28 22:55:10.299 +05:30 [INF] Executed action StoreApp.Server.Controllers.WeatherForecastController.Get (StoreApp.Server) in 76.7223ms
+2025-06-28 22:55:10.301 +05:30 [INF] Executed endpoint 'StoreApp.Server.Controllers.WeatherForecastController.Get (StoreApp.Server)'
+2025-06-28 22:55:10.303 +05:30 [INF] Request finished HTTP/1.1 GET https://127.0.0.1:50201/weatherforecast - 200 null application/json; charset=utf-8 2141.2017ms
+2025-06-28 23:58:17.703 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-06-28 23:58:17.832 +05:30 [INF] User profile is available. Using 'C:\Users\anjal\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-06-28 23:58:18.134 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-06-28 23:58:18.252 +05:30 [INF] Now listening on: https://localhost:7071
+2025-06-28 23:58:18.253 +05:30 [INF] Now listening on: http://localhost:5121
+2025-06-28 23:58:18.256 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-06-28 23:58:18.257 +05:30 [INF] Hosting environment: Development
+2025-06-28 23:58:18.258 +05:30 [INF] Content root path: D:\sumesh\project\store\Repository\store-management\StoreApp.Server
+2025-06-28 23:58:19.005 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/index.html - null null
+2025-06-28 23:58:19.297 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/index.html - 200 null text/html;charset=utf-8 306.3146ms
+2025-06-28 23:58:19.347 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - null null
+2025-06-28 23:58:19.354 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_vs/browserLink - null null
+2025-06-28 23:58:19.374 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - 200 16515 application/javascript; charset=utf-8 27.2671ms
+2025-06-28 23:58:19.440 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_vs/browserLink - 200 null text/javascript; charset=UTF-8 85.228ms
+2025-06-28 23:58:19.708 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - null null
+2025-06-28 23:58:19.863 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 156.0742ms
+2025-06-28 23:58:22.147 +05:30 [INF] No SPA development server running at https://localhost:49805 found.
