@@ -52,15 +52,25 @@ import { EditStoreModalComponent } from './edit-store-modal.component';
       <mat-card class="table-card">
         <mat-card-header>
           <mat-card-title>
-            <mat-icon>list</mat-icon>
-            Stores List
+            <div class="title-container">
+                <mat-icon>list</mat-icon>
+                <span>Stores List</span>
+            </div>
           </mat-card-title>
           <div class="header-actions">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Search stores</mat-label>
-              <input matInput (keyup)="applyFilter($event)" placeholder="Search by name, key, or phone">
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
+            <div class="search-container">
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control search-input" 
+                  placeholder="Search by name, key, or phone"
+                  (keyup)="applyFilter($event)"
+                  aria-label="Search stores">
+                <span class="input-group-text">
+                  <mat-icon>search</mat-icon>
+                </span>
+              </div>
+            </div>
             <button mat-raised-button color="primary" (click)="openCreateStoreModal()" class="add-btn">
               <mat-icon>add</mat-icon>
               Add Store
@@ -178,6 +188,54 @@ import { EditStoreModalComponent } from './edit-store-modal.component';
     </div>
   `,
   styles: [`
+  /* Search Container Styles */
+  .search-container {
+    width: 300px;
+  }
+
+  .input-group {
+    height: 32px;
+  }
+
+  .search-input {
+    height: 32px !important;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    padding: 0 12px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .search-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  }
+
+  .input-group-text {
+    height: 32px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    color: #6c757d;
+  }
+
+  .input-group-text mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+    .title-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+        
     .store-management-container {
       padding: 24px;
       max-width: 1400px;
@@ -274,6 +332,14 @@ import { EditStoreModalComponent } from './edit-store-modal.component';
     .add-btn {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 120px;
+      border-radius: 4px;
+      border: none;
     }
 
     .table-container {

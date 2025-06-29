@@ -25,6 +25,14 @@ export const routes: Routes = [
         path: 'stores', 
         loadComponent: () => import('./store-management/store-management.component').then(m => m.StoreManagementComponent)
       },
+      { 
+        path: 'products', 
+        loadComponent: () => import('./products/products.component').then(m => m.ProductsComponent)
+      },
+      { 
+        path: 'categories', 
+        loadComponent: () => import('./categories/categories.component').then(m => m.CategoriesComponent)
+      },
       { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
     ]
   },
