@@ -182,7 +182,7 @@ export interface NavigationItem {
 
         <!-- Page Content -->
         <div class="main-content">
-          <ng-content></ng-content>
+          <router-outlet></router-outlet>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -214,7 +214,17 @@ export class LayoutComponent implements OnInit {
       icon: 'home',
       route: '/home'
     },
+    {
+      label: 'Test Page',
+      icon: 'science',
+      route: '/test'
+    },
     { divider: true, label: '', icon: '' },
+    {
+      label: 'Store Management',
+      icon: 'store',
+      route: '/stores'
+    },
     {
       label: 'Inventory',
       icon: 'inventory',
@@ -254,11 +264,6 @@ export class LayoutComponent implements OnInit {
         { label: 'Settings', icon: 'settings', route: '/settings' }
       ]
     },
-    {
-      label: 'Test Page',
-      icon: 'science',
-      route: '/test'
-    },
     { divider: true, label: '', icon: '' },
     {
       label: 'Help & Support',
@@ -279,6 +284,7 @@ export class LayoutComponent implements OnInit {
     const titles: { [key: string]: string } = {
       '/dashboard': 'Dashboard',
       '/home': 'Home',
+      '/stores': 'Store Management',
       '/products': 'Products',
       '/categories': 'Categories',
       '/stock': 'Stock Management',

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, firstValueFrom } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 export interface LoginCredentials {
@@ -101,7 +101,7 @@ export class AuthService {
 
     try {
       // Load mock data from JSON file
-      const response = await this.http.get<any>('/assets/mock-data/auth-data.json').toPromise();
+      const response = await firstValueFrom(this.http.get<any>('/assets/mock-data/auth-data.json'));
       
       if (!response) {
         throw new Error('Failed to load authentication data');

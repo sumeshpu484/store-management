@@ -26,7 +26,7 @@ import { AuthService } from './services/auth.service';
             </mat-card-header>
             
             <mat-card-content>
-              <p>Angular 17 with Bootstrap and Material Design is working!</p>
+              <p>Angular 20 with Bootstrap and Material Design is working!</p>
               
               <div class="alert alert-success" role="alert" *ngIf="authService.isAuthenticated()">
                 <mat-icon>check_circle</mat-icon>

@@ -9,119 +9,88 @@ import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatGridListModule
-  ],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatGridListModule],
   template: `
     <div class="dashboard-container">
-      <div class="dashboard-header">
-        <h1>Dashboard</h1>
-        <p *ngIf="currentUser$ | async as user">Welcome back, {{ user.firstName }}!</p>
+      <div class="welcome-section" *ngIf="currentUser$ | async as user">
+        <h1>Welcome back, {{ user.firstName }}!</h1>
+        <p>Here's what's happening in your store today.</p>
       </div>
 
-      <!-- Quick Stats -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <mat-card>
-            <mat-card-content>
-              <div class="stat-content">
-                <div class="stat-icon">
-                  <mat-icon>inventory</mat-icon>
-                </div>
-                <div class="stat-info">
-                  <div class="stat-number">1,234</div>
-                  <div class="stat-label">Total Products</div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>trending_up</mat-icon>
+            <mat-card-title>Today's Sales</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="stat-value">$2,847.50</div>
+            <div class="stat-change positive">+12.5% from yesterday</div>
+          </mat-card-content>
+        </mat-card>
 
-        <div class="stat-card">
-          <mat-card>
-            <mat-card-content>
-              <div class="stat-content">
-                <div class="stat-icon">
-                  <mat-icon>receipt_long</mat-icon>
-                </div>
-                <div class="stat-info">
-                  <div class="stat-number">89</div>
-                  <div class="stat-label">Pending Orders</div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+        <mat-card class="stat-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>shopping_cart</mat-icon>
+            <mat-card-title>Orders</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="stat-value">24</div>
+            <div class="stat-change positive">+3 from yesterday</div>
+          </mat-card-content>
+        </mat-card>
 
-        <div class="stat-card">
-          <mat-card>
-            <mat-card-content>
-              <div class="stat-content">
-                <div class="stat-icon">
-                  <mat-icon>trending_up</mat-icon>
-                </div>
-                <div class="stat-info">
-                  <div class="stat-number">$12,543</div>
-                  <div class="stat-label">Today's Sales</div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+        <mat-card class="stat-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>inventory</mat-icon>
+            <mat-card-title>Low Stock Items</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="stat-value">5</div>
+            <div class="stat-change negative">Needs attention</div>
+          </mat-card-content>
+        </mat-card>
 
-        <div class="stat-card">
-          <mat-card>
-            <mat-card-content>
-              <div class="stat-content">
-                <div class="stat-icon">
-                  <mat-icon>people</mat-icon>
-                </div>
-                <div class="stat-info">
-                  <div class="stat-number">567</div>
-                  <div class="stat-label">Customers</div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+        <mat-card class="stat-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>people</mat-icon>
+            <mat-card-title>New Customers</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="stat-value">8</div>
+            <div class="stat-change positive">+2 from yesterday</div>
+          </mat-card-content>
+        </mat-card>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <mat-card>
+      <div class="action-grid">
+        <mat-card class="action-card">
           <mat-card-header>
             <mat-card-title>Quick Actions</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <div class="actions-grid">
-              <button mat-raised-button color="primary" class="action-button">
+            <div class="action-buttons">
+              <button mat-raised-button color="primary">
                 <mat-icon>add_shopping_cart</mat-icon>
                 New Sale
               </button>
-              <button mat-raised-button color="accent" class="action-button">
-                <mat-icon>add_box</mat-icon>
+              <button mat-raised-button color="accent">
+                <mat-icon>inventory_2</mat-icon>
                 Add Product
               </button>
-              <button mat-raised-button class="action-button">
+              <button mat-raised-button>
                 <mat-icon>person_add</mat-icon>
-                Add Customer
+                New Customer
               </button>
-              <button mat-raised-button class="action-button">
+              <button mat-raised-button>
                 <mat-icon>assessment</mat-icon>
                 View Reports
               </button>
             </div>
           </mat-card-content>
         </mat-card>
-      </div>
 
-      <!-- Recent Activity -->
-      <div class="recent-activity">
-        <mat-card>
+        <mat-card class="action-card">
           <mat-card-header>
             <mat-card-title>Recent Activity</mat-card-title>
           </mat-card-header>
@@ -129,21 +98,21 @@ import { AuthService } from '../services/auth.service';
             <div class="activity-list">
               <div class="activity-item">
                 <mat-icon>shopping_cart</mat-icon>
-                <div class="activity-details">
-                  <div class="activity-title">New order #1234 received</div>
+                <div class="activity-content">
+                  <div class="activity-title">Order #1234 completed</div>
                   <div class="activity-time">2 minutes ago</div>
                 </div>
               </div>
               <div class="activity-item">
-                <mat-icon>inventory_2</mat-icon>
-                <div class="activity-details">
-                  <div class="activity-title">Stock updated for iPhone 15</div>
+                <mat-icon>inventory</mat-icon>
+                <div class="activity-content">
+                  <div class="activity-title">Product "Coffee Beans" restocked</div>
                   <div class="activity-time">15 minutes ago</div>
                 </div>
               </div>
               <div class="activity-item">
                 <mat-icon>person_add</mat-icon>
-                <div class="activity-details">
+                <div class="activity-content">
                   <div class="activity-title">New customer registered</div>
                   <div class="activity-time">1 hour ago</div>
                 </div>
@@ -156,136 +125,202 @@ import { AuthService } from '../services/auth.service';
   `,
   styles: [`
     .dashboard-container {
+      padding: 24px;
       max-width: 1200px;
       margin: 0 auto;
+      background-color: #f8f9fa;
+      min-height: 100vh;
     }
 
-    .dashboard-header {
-      margin-bottom: 24px;
+    .welcome-section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
     }
 
-    .dashboard-header h1 {
-      margin: 0 0 8px 0;
-      font-size: 28px;
-      font-weight: 500;
+    .welcome-section h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: white;
     }
 
-    .dashboard-header p {
+    .welcome-section p {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
       margin: 0;
-      color: #666;
     }
 
-    .stats-row {
+    .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 24px;
+      margin-bottom: 32px;
     }
 
     .stat-card {
-      .mat-mdc-card {
-        padding: 0;
-      }
+      text-align: center;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid #e0e0e0;
     }
 
-    .stat-content {
-      display: flex;
-      align-items: center;
-      padding: 16px;
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
-    .stat-icon {
-      background: #673ab7;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 16px;
-
-      mat-icon {
-        color: white;
-        font-size: 24px;
-      }
+    .stat-card mat-icon[mat-card-avatar] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
     }
 
-    .stat-info {
-      .stat-number {
-        font-size: 24px;
-        font-weight: 600;
-        color: #333;
-        line-height: 1;
-      }
-
-      .stat-label {
-        font-size: 14px;
-        color: #666;
-        margin-top: 4px;
-      }
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #333;
+      margin: 16px 0 8px 0;
     }
 
-    .quick-actions {
-      margin-bottom: 24px;
+    .stat-change {
+      font-size: 0.9rem;
+      font-weight: 500;
     }
 
-    .actions-grid {
+    .stat-change.positive {
+      color: #28a745;
+    }
+
+    .stat-change.negative {
+      color: #dc3545;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+    }
+
+    .action-card {
+      height: fit-content;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+    }
+
+    .action-buttons {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 16px;
+      gap: 12px;
     }
 
-    .action-button {
-      height: 64px;
+    .action-buttons button {
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
     }
 
-    .recent-activity {
-      margin-bottom: 24px;
+    .action-buttons button[color="primary"] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+    }
+
+    .action-buttons button[color="accent"] {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border: none;
+      color: white;
+    }
+
+    .action-buttons button:not([color]) {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border: none;
+      color: white;
     }
 
     .activity-list {
-      .activity-item {
-        display: flex;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-        &:last-child {
-          border-bottom: none;
-        }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
 
-        mat-icon {
-          margin-right: 16px;
-          color: #673ab7;
-        }
+    .activity-item:hover {
+      background-color: #f8f9fa;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
 
-        .activity-details {
-          .activity-title {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 4px;
-          }
+    .activity-item:last-child {
+      border-bottom: none;
+    }
 
-          .activity-time {
-            font-size: 12px;
-            color: #666;
-          }
-        }
-      }
+    .activity-item mat-icon {
+      color: #667eea;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-title {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .activity-time {
+      font-size: 0.8rem;
+      color: #999;
     }
 
     @media (max-width: 768px) {
-      .stats-row {
+      .dashboard-container {
+        padding: 16px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .action-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .action-buttons {
         grid-template-columns: 1fr;
       }
 
-      .actions-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .welcome-section {
+        padding: 16px;
+      }
+
+      .welcome-section h1 {
+        font-size: 1.5rem;
       }
     }
   `]

@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { 
   Validators, 
   ReactiveFormsModule, 
-  NonNullableFormBuilder
+  NonNullableFormBuilder,
+  FormGroup,
+  FormControl
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,7 +35,7 @@ import { AuthService, LoginCredentials } from '../services/auth.service';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  // Modern Angular 17 dependency injection
+  // Modern Angular 20 dependency injection
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -60,7 +62,12 @@ export class LoginComponent {
   }
 
   async onLogin(): Promise<void> {
+    console.log('Login form submitted');
+    console.log('Form valid:', this.loginForm.valid);
+    console.log('Form value:', this.loginForm.value);
+    
     if (!this.loginForm.valid) {
+      console.log('Form is invalid, marking fields as touched');
       this.markFormGroupTouched();
       return;
     }
@@ -69,15 +76,18 @@ export class LoginComponent {
     this.loginError = null;
     
     const credentials: LoginCredentials = this.loginForm.getRawValue();
-    console.log('Login attempt:', credentials);
+    console.log('Login attempt with credentials:', credentials);
     
     try {
       // Use the authentication service for login
+      console.log('Calling mockLogin...');
       const response = await this.authService.mockLogin(credentials); // Use mockLogin for development
       // await this.authService.login(credentials); // Use this for production with real API
       
       console.log('Login successful!', response.message);
-      await this.router.navigate(['/home']);
+      console.log('Navigating to /dashboard...');
+      await this.router.navigate(['/dashboard']);
+      console.log('Navigation completed');
     } catch (error) {
       this.loginError = error instanceof Error ? error.message : 'Login failed. Please try again.';
       console.error('Login failed:', error);

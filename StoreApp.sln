@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36202.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "storeapp.client", "storeapp.client\storeapp.client.esproj", "{95CADD8E-4389-D233-FB63-AB9B4A4CBD3C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreApp.Server", "StoreApp.Server\StoreApp.Server.csproj", "{FFA21D2A-41BC-4D15-97CB-106C0A73001C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreApp.Services", "StoreApp.Services\StoreApp.Services.csproj", "{D2E8933A-E175-49DA-91C7-F50C90289C87}"
@@ -23,12 +21,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{95CADD8E-4389-D233-FB63-AB9B4A4CBD3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{95CADD8E-4389-D233-FB63-AB9B4A4CBD3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{95CADD8E-4389-D233-FB63-AB9B4A4CBD3C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{95CADD8E-4389-D233-FB63-AB9B4A4CBD3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95CADD8E-4389-D233-FB63-AB9B4A4CBD3C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{95CADD8E-4389-D233-FB63-AB9B4A4CBD3C}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{FFA21D2A-41BC-4D15-97CB-106C0A73001C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FFA21D2A-41BC-4D15-97CB-106C0A73001C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFA21D2A-41BC-4D15-97CB-106C0A73001C}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -3,7 +3,7 @@
     {
       "id": "1",
       "username": "admin",
-      "password": "admin",
+      "password": "admin123",
       "email": "admin@storemanagement.com",
       "role": "admin",
       "firstName": "System",

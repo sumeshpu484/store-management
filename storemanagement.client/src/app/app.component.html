@@ -1,9 +1,1 @@
-<div *ngIf="authService.isAuthenticated(); else loginView">
-  <app-layout>
-    <router-outlet></router-outlet>
-  </app-layout>
-</div>
-
-<ng-template #loginView>
   <router-outlet></router-outlet>
-</ng-template>
