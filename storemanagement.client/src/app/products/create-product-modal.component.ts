@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -22,6 +23,7 @@ import { Product, ProductCategory } from '../models/product.interface';
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
+    MatSnackBarModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -388,6 +390,7 @@ export class CreateProductModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly productService = inject(ProductService);
   private readonly dialogRef = inject(MatDialogRef<CreateProductModalComponent>);
+  private readonly snackBar = inject(MatSnackBar);
 
   productForm!: FormGroup;
   categories: ProductCategory[] = [];
@@ -482,16 +485,25 @@ export class CreateProductModalComponent implements OnInit {
         next: (response) => {
           this.isSubmitting = false;
           if (response.success) {
-            alert(response.message);
+            this.snackBar.open(`✅ Product "${product.name}" created successfully!`, 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
             this.dialogRef.close(true);
           } else {
-            alert(response.message);
+            this.snackBar.open(`❌ Failed to create product: ${response.message}`, 'Close', {
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
           }
         },
         error: (error) => {
           this.isSubmitting = false;
           console.error('Error creating product:', error);
-          alert('Error creating product');
+          this.snackBar.open('❌ Failed to create product. Please try again.', 'Close', {
+            duration: 4000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
     }

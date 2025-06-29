@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -21,6 +22,7 @@ import { ProductService } from '../services/product.service';
 import { Product, ProductCategory, ProductStats } from '../models/product.interface';
 import { CreateProductModalComponent } from './create-product-modal.component';
 import { EditProductModalComponent } from './edit-product-modal.component';
+import { ConfirmationModalComponent } from '../shared/confirmation-modal.component';
 
 @Component({
   selector: 'app-products',
@@ -36,6 +38,7 @@ import { EditProductModalComponent } from './edit-product-modal.component';
     MatIconModule,
     MatCardModule,
     MatDialogModule,
+    MatSnackBarModule,
     MatTooltipModule,
     MatChipsModule,
     MatSlideToggleModule,
@@ -608,11 +611,33 @@ import { EditProductModalComponent } from './edit-product-modal.component';
         transform: translateY(0);
       }
     }
+
+    /* Snackbar Styles */
+    ::ng-deep .success-snackbar {
+      background-color: #4caf50 !important;
+      color: white !important;
+    }
+
+    ::ng-deep .error-snackbar {
+      background-color: #f44336 !important;
+      color: white !important;
+    }
+
+    ::ng-deep .info-snackbar {
+      background-color: #2196f3 !important;
+      color: white !important;
+    }
+
+    ::ng-deep .warning-snackbar {
+      background-color: #ff9800 !important;
+      color: white !important;
+    }
   `]
 })
 export class ProductsComponent implements OnInit, AfterViewInit {
   private readonly productService = inject(ProductService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -640,7 +665,10 @@ export class ProductsComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Error loading products:', error);
-        alert('Error loading products');
+        this.snackBar.open('❌ Failed to load products. Please refresh the page.', 'Close', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
@@ -692,41 +720,75 @@ export class ProductsComponent implements OnInit, AfterViewInit {
   viewProductDetails(product: Product): void {
     // TODO: Implement product details view
     console.log('View product details:', product);
-    alert(`Product Details: ${product.name}\nSKU: ${product.sku}\nPrice: ₹${product.price}\nStock: ${product.stockQuantity} ${product.unit}`);
+    this.snackBar.open(
+      `Product Details: ${product.name} | SKU: ${product.sku} | Price: ₹${product.price} | Stock: ${product.stockQuantity} ${product.unit}`,
+      'Close',
+      {
+        duration: 5000,
+        panelClass: ['info-snackbar']
+      }
+    );
   }
 
   toggleProductStatus(product: Product): void {
     this.productService.toggleProductStatus(product.id!).subscribe({
       next: (response) => {
         if (response.success) {
-          alert(response.message);
+          const statusText = product.isActive ? 'deactivated' : 'activated';
+          this.snackBar.open(`✅ Product "${product.name}" ${statusText} successfully!`, 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
           this.loadProducts();
           this.loadStats();
         }
       },
       error: (error) => {
         console.error('Error updating product status:', error);
-        alert('Error updating product status');
+        this.snackBar.open(`❌ Failed to update status for "${product.name}". Please try again.`, 'Close', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   deleteProduct(product: Product): void {
-    if (confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
-      this.productService.deleteProduct(product.id!).subscribe({
-        next: (response) => {
-          if (response.success) {
-            alert(response.message);
-            this.loadProducts();
-            this.loadStats();
+    const dialogRef = this.dialog.open(ConfirmationModalComponent, {
+      width: '450px',
+      data: {
+        title: 'Delete Product',
+        message: `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
+        confirmText: 'Delete Product',
+        cancelText: 'Cancel',
+        type: 'delete',
+        icon: 'delete'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.productService.deleteProduct(product.id!).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.snackBar.open(`✅ Product "${product.name}" deleted successfully!`, 'Close', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+              });
+              this.loadProducts();
+              this.loadStats();
+            }
+          },
+          error: (error) => {
+            console.error('Error deleting product:', error);
+            this.snackBar.open(`❌ Failed to delete product "${product.name}". Please try again.`, 'Close', {
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
           }
-        },
-        error: (error) => {
-          console.error('Error deleting product:', error);
-          alert('Error deleting product');
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   applyFilter(event: Event): void {

@@ -88,7 +88,7 @@ export interface NavigationItem {
             <!-- Menu Item with Children -->
             <div *ngIf="item.children && item.children.length > 0" class="nav-group">
               <div class="nav-group-header" 
-                   (click)="toggleGroup(item.label)"
+                   (click)="onMenuItemClick(item, $event)"
                    [class.expanded]="isGroupExpanded(item)">
                 <mat-icon>{{ item.icon }}</mat-icon>
                 <span>{{ item.label }}</span>
@@ -248,11 +248,11 @@ export class LayoutComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event) => {
         this.updatePageTitle((event as NavigationEnd).url);
-        this.autoExpandGroups((event as NavigationEnd).url);
+        // Removed auto-expansion - submenus now only toggle on click
       });
 
-    // Initialize expanded groups based on current route
-    this.autoExpandGroups(this.router.url);
+    // Initialize page title based on current route
+    this.updatePageTitle(this.router.url);
   }
 
   toggleGroup(groupLabel: string): void {
@@ -263,24 +263,23 @@ export class LayoutComponent implements OnInit {
     }
   }
 
+  onMenuItemClick(item: NavigationItem, event?: Event): void {
+    // If the item has children, toggle the submenu instead of navigating
+    if (item.children && item.children.length > 0) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      this.toggleGroup(item.label);
+    }
+    // If no children, let the routerLink handle navigation
+  }
+
   isGroupExpanded(item: NavigationItem): boolean {
     return this.expandedGroups.has(item.label);
   }
 
-  private autoExpandGroups(url: string): void {
-    // Clear all expanded groups first
-    this.expandedGroups.clear();
-
-    // Check if current URL matches any child routes and expand parent group
-    this.navigationItems.forEach(item => {
-      if (item.children) {
-        const hasActiveChild = item.children.some(child => child.route && url.startsWith(child.route));
-        if (hasActiveChild) {
-          this.expandedGroups.add(item.label);
-        }
-      }
-    });
-  }
+  // Removed autoExpandGroups method - submenus now only toggle manually
 
   private updatePageTitle(url: string): void {
     const titles: { [key: string]: string } = {

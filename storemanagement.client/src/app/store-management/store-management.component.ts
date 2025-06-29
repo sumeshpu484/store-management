@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -17,6 +18,7 @@ import { StoreService } from '../services/store.service';
 import { Store } from '../models/store.interface';
 import { CreateStoreModalComponent } from './create-store-modal.component';
 import { EditStoreModalComponent } from './edit-store-modal.component';
+import { ConfirmationModalComponent } from '../shared/confirmation-modal.component';
 
 @Component({
   selector: 'app-store-management',
@@ -32,6 +34,7 @@ import { EditStoreModalComponent } from './edit-store-modal.component';
     MatIconModule,
     MatCardModule,
     MatDialogModule,
+    MatSnackBarModule,
     MatTooltipModule,
     MatChipsModule,
     MatSlideToggleModule,
@@ -548,20 +551,34 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
   }
 
   deleteStore(store: Store): void {
-    if (confirm(`Are you sure you want to delete "${store.name}"? This action cannot be undone.`)) {
-      this.storeService.deleteStore(store.id!).subscribe({
-        next: (response) => {
-          if (response.success) {
-            alert(response.message);
-            this.loadStores();
+    const dialogRef = this.dialog.open(ConfirmationModalComponent, {
+      width: '450px',
+      data: {
+        title: 'Delete Store',
+        message: `Are you sure you want to delete "${store.name}"? This action cannot be undone.`,
+        confirmText: 'Delete Store',
+        cancelText: 'Cancel',
+        type: 'delete',
+        icon: 'delete'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.storeService.deleteStore(store.id!).subscribe({
+          next: (response) => {
+            if (response.success) {
+              alert(response.message);
+              this.loadStores();
+            }
+          },
+          error: (error) => {
+            console.error('Error deleting store:', error);
+            alert('Error deleting store');
           }
-        },
-        error: (error) => {
-          console.error('Error deleting store:', error);
-          alert('Error deleting store');
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   applyFilter(event: Event): void {

@@ -594,8 +594,8 @@ export class EditCategoryModalComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading parent categories:', error);
-        this.snackBar.open('Failed to load parent categories', 'Close', {
-          duration: 3000,
+        this.snackBar.open('❌ Failed to load parent categories. Some features may be limited.', 'Close', {
+          duration: 4000,
           panelClass: ['error-snackbar']
         });
       }
@@ -649,14 +649,14 @@ export class EditCategoryModalComponent implements OnInit {
       next: (response: any) => {
         this.isSubmitting = false;
         if (response.success) {
-          this.snackBar.open('Category updated successfully!', 'Close', {
+          this.snackBar.open(`✅ Category "${categoryData.name}" updated successfully!`, 'Close', {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
           this.dialogRef.close(response.category);
         } else {
-          this.snackBar.open(response.message || 'Failed to update category', 'Close', {
-            duration: 3000,
+          this.snackBar.open(`❌ Failed to update category: ${response.message || 'Unknown error'}`, 'Close', {
+            duration: 4000,
             panelClass: ['error-snackbar']
           });
         }
@@ -664,8 +664,8 @@ export class EditCategoryModalComponent implements OnInit {
       error: (error: any) => {
         this.isSubmitting = false;
         console.error('Error updating category:', error);
-        this.snackBar.open('Failed to update category. Please try again.', 'Close', {
-          duration: 3000,
+        this.snackBar.open('❌ Failed to update category. Please try again.', 'Close', {
+          duration: 4000,
           panelClass: ['error-snackbar']
         });
       }

@@ -109,6 +109,83 @@ body {
   width: 100%;
 }
 
+// Enhanced Snackbar Notifications
+.success-snackbar {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
+  color: white !important;
+  
+  .mat-mdc-snack-bar-label {
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+  }
+}
+
+.error-snackbar {
+  background: linear-gradient(135deg, #f44336 0%, #ef5350 100%) !important;
+  color: white !important;
+  
+  .mat-mdc-snack-bar-label {
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+  }
+}
+
+.warning-snackbar {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%) !important;
+  color: white !important;
+  
+  .mat-mdc-snack-bar-label {
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+  }
+}
+
+.info-snackbar {
+  background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%) !important;
+  color: white !important;
+  
+  .mat-mdc-snack-bar-label {
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+  }
+}
+
+// Global snackbar positioning and animation improvements
+.mat-mdc-snack-bar-container {
+  border-radius: 8px !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  margin: 16px !important;
+  max-width: 400px !important;
+  
+  &.mat-mdc-snack-bar-center {
+    margin: 16px auto !important;
+  }
+  
+  &.mat-mdc-snack-bar-top {
+    top: 24px !important;
+  }
+}
+
 // Responsive utilities
 @media (max-width: 576px) {
   .container-fluid {

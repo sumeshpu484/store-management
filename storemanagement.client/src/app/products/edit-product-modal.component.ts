@@ -12,6 +12,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ProductService } from '../services/product.service';
 import { Product, ProductCategory } from '../models/product.interface';
 
@@ -22,6 +23,7 @@ import { Product, ProductCategory } from '../models/product.interface';
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
+    MatSnackBarModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -385,6 +387,7 @@ export class EditProductModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly productService = inject(ProductService);
   private readonly dialogRef = inject(MatDialogRef<EditProductModalComponent>);
+  private readonly snackBar = inject(MatSnackBar);
 
   productForm!: FormGroup;
   categories: ProductCategory[] = [];
@@ -482,16 +485,25 @@ export class EditProductModalComponent implements OnInit {
         next: (response) => {
           this.isSubmitting = false;
           if (response.success) {
-            alert(response.message);
+            this.snackBar.open(`✅ Product "${product.name}" updated successfully!`, 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
             this.dialogRef.close(true);
           } else {
-            alert(response.message);
+            this.snackBar.open(`❌ Failed to update product: ${response.message}`, 'Close', {
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
           }
         },
         error: (error) => {
           this.isSubmitting = false;
           console.error('Error updating product:', error);
-          alert('Error updating product');
+          this.snackBar.open('❌ Failed to update product. Please try again.', 'Close', {
+            duration: 4000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
     }

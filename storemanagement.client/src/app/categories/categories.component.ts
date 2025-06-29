@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -18,6 +19,8 @@ import { CategoryService } from '../services/category.service';
 import { Category, CategoryStats } from '../models/category.interface';
 import { CreateCategoryModalComponent } from './create-category-modal.component';
 import { EditCategoryModalComponent } from './edit-category-modal.component';
+import { CategoryDetailsModalComponent } from './category-details-modal.component';
+import { ConfirmationModalComponent } from '../shared/confirmation-modal.component';
 
 @Component({
   selector: 'app-categories',
@@ -33,6 +36,7 @@ import { EditCategoryModalComponent } from './edit-category-modal.component';
     MatIconModule,
     MatCardModule,
     MatDialogModule,
+    MatSnackBarModule,
     MatTooltipModule,
     MatChipsModule,
     MatSlideToggleModule,
@@ -538,11 +542,33 @@ import { EditCategoryModalComponent } from './edit-category-modal.component';
         transform: translateY(0);
       }
     }
+
+    /* Snackbar Styles */
+    ::ng-deep .success-snackbar {
+      background-color: #4caf50 !important;
+      color: white !important;
+    }
+
+    ::ng-deep .error-snackbar {
+      background-color: #f44336 !important;
+      color: white !important;
+    }
+
+    ::ng-deep .info-snackbar {
+      background-color: #2196f3 !important;
+      color: white !important;
+    }
+
+    ::ng-deep .warning-snackbar {
+      background-color: #ff9800 !important;
+      color: white !important;
+    }
   `]
 })
 export class CategoriesComponent implements OnInit, AfterViewInit {
   private readonly categoryService = inject(CategoryService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -577,7 +603,10 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Error loading categories:', error);
-        alert('Error loading categories');
+        this.snackBar.open('❌ Failed to load categories. Please refresh the page.', 'Close', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
@@ -627,52 +656,83 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   }
 
   viewCategoryDetails(category: Category): void {
-    // TODO: Implement category details view
-    console.log('View category details:', category);
-    const details = `Category Details:
-Name: ${category.name}
-Code: ${category.code}
-Level: ${category.level}
-${category.parentName ? 'Parent: ' + category.parentName : 'Root Category'}
-Products: ${category.totalProducts || 0}
-Status: ${category.isActive ? 'Active' : 'Inactive'}`;
-    alert(details);
+    const dialogRef = this.dialog.open(CategoryDetailsModalComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: { category }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.action === 'edit') {
+        this.openEditCategoryModal(result.category);
+      }
+    });
   }
 
   toggleCategoryStatus(category: Category): void {
     this.categoryService.toggleCategoryStatus(category.id!).subscribe({
       next: (response) => {
         if (response.success) {
-          alert(response.message);
+          const statusText = category.isActive ? 'deactivated' : 'activated';
+          this.snackBar.open(`✅ Category "${category.name}" ${statusText} successfully!`, 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
           this.loadCategories();
           this.loadStats();
         }
       },
       error: (error) => {
         console.error('Error updating category status:', error);
-        alert('Error updating category status');
+        this.snackBar.open(`❌ Failed to update status for "${category.name}". Please try again.`, 'Close', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   deleteCategory(category: Category): void {
-    if (confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
-      this.categoryService.deleteCategory(category.id!).subscribe({
-        next: (response) => {
-          if (response.success) {
-            alert(response.message);
-            this.loadCategories();
-            this.loadStats();
-          } else {
-            alert(response.message);
+    const dialogRef = this.dialog.open(ConfirmationModalComponent, {
+      width: '450px',
+      data: {
+        title: 'Delete Category',
+        message: `Are you sure you want to delete "${category.name}"? This action cannot be undone.`,
+        confirmText: 'Delete Category',
+        cancelText: 'Cancel',
+        type: 'delete',
+        icon: 'delete'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.categoryService.deleteCategory(category.id!).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.snackBar.open(`✅ Category "${category.name}" deleted successfully!`, 'Close', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+              });
+              this.loadCategories();
+              this.loadStats();
+            } else {
+              this.snackBar.open(`❌ Failed to delete category: ${response.message}`, 'Close', {
+                duration: 4000,
+                panelClass: ['error-snackbar']
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error deleting category:', error);
+            this.snackBar.open(`❌ Failed to delete category "${category.name}". Please try again.`, 'Close', {
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
           }
-        },
-        error: (error) => {
-          console.error('Error deleting category:', error);
-          alert('Error deleting category');
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   applyFilter(event: Event): void {
