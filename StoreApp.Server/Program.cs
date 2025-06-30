@@ -52,7 +52,7 @@ builder.Services.AddAuthentication(options =>
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IEmailService, DummyEmailService>();
+builder.Services.AddScoped<IEmailService, GmailEmailService>();
 builder.Services.AddServerDependencies();
 
 // Add application services
