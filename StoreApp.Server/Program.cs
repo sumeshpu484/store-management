@@ -5,6 +5,9 @@ using Serilog;
 using StoreApp.Core.Middleware;
 using StoreApp.Services.Auth;
 using StoreApp.Services.Infrastructure;
+using StoreApp.Data.Repositories;
+using StoreApp.Server;
+using StoreApp.Services.Email;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -49,6 +52,8 @@ builder.Services.AddAuthentication(options =>
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, DummyEmailService>();
+builder.Services.AddServerDependencies();
 
 // Add application services
 builder.Services.AddApplicationServices(builder.Configuration);

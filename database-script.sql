@@ -50,28 +50,29 @@ CREATE TABLE IF NOT EXISTS Stores (
     city VARCHAR(100),                        -- City where the store is located
     state VARCHAR(50),                        -- State where the store is located
     zip_code VARCHAR(10),                     -- Zip code of the store
+    email VARCHAR(255) UNIQUE,                -- Email address for the store, can be NULL but must be unique if present
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp when the store record was created
 );
 
 -- Add dummy data into the 'Stores' table using ON CONFLICT DO NOTHING for idempotency.
-INSERT INTO Stores (store_name, address, city, state, zip_code)
-VALUES ('Main Street Store', '123 Main St', 'Anytown', 'CA', '90210')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email)
+VALUES ('Main Street Store', '123 Main St', 'Anytown', 'CA', '90210', 'mainstreet@example.com')
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code)
-VALUES ('Downtown Plaza', '456 Oak Ave', 'Metropolis', 'NY', '10001')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email)
+VALUES ('Downtown Plaza', '456 Oak Ave', 'Metropolis', 'NY', '10001', 'downtownplaza@example.com')
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code)
-VALUES ('Northside Market', '789 Pine Ln', 'Gotham', 'IL', '60601')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email)
+VALUES ('Northside Market', '789 Pine Ln', 'Gotham', 'IL', '60601', 'northsidemarket@example.com')
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code)
-VALUES ('Riverside Boutique', '101 River Rd', 'Star City', 'TX', '75001')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email)
+VALUES ('Riverside Boutique', '101 River Rd', 'Star City', 'TX', '75001', 'riversideboutique@example.com')
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code)
-VALUES ('East End Emporium', '202 Bridge St', 'Central City', 'FL', '33101')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email)
+VALUES ('East End Emporium', '202 Bridge St', 'Central City', 'FL', '33101', 'eastendemporium@example.com')
 ON CONFLICT (store_name) DO NOTHING;
 
 
@@ -109,14 +110,15 @@ VALUES ('john_doe', 'hashedpassword1', 'john.doe@example.com', TRUE, (SELECT rol
        ('sarah_brown', 'hashedpassword4', 'sarah.brown@example.com', TRUE, (SELECT role_id FROM warehouse_maker_role), NULL),
        ('david_green', 'hashedpassword5', 'david.green@example.com', TRUE, (SELECT role_id FROM warehouse_checker_role), NULL)
 ON CONFLICT (email) DO NOTHING;
---===================================================================================================================
+
 -- Stored Procedure (Function in PostgreSQL) to create a new store and default users
 CREATE OR REPLACE FUNCTION create_store_with_users(
     _store_name VARCHAR(255),
     _address VARCHAR(255),
     _city VARCHAR(100),
     _state VARCHAR(50),
-    _zip_code VARCHAR(10)
+    _zip_code VARCHAR(10),
+    _store_email VARCHAR(255) -- Added new parameter for store email
 )
 RETURNS INT AS $$
 DECLARE
@@ -129,9 +131,9 @@ BEGIN
     SELECT role_id INTO store_checker_role_id FROM Roles WHERE role_name = 'store-checker';
 
     -- Insert the new store and get its ID
-    INSERT INTO Stores (store_name, address, city, state, zip_code)
-    VALUES (_store_name, _address, _city, _state, _zip_code)
-    ON CONFLICT (store_name) DO NOTHING
+    INSERT INTO Stores (store_name, address, city, state, zip_code, email) -- Included email here
+    VALUES (_store_name, _address, _city, _state, _zip_code, _store_email)
+    ON CONFLICT (store_name) DO NOTHING -- Still conflict on store_name for primary uniqueness
     RETURNING store_id INTO new_store_id;
 
     -- If the store already existed, new_store_id might be NULL or the existing ID.
@@ -170,6 +172,5 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Example of how to call the function:
--- SELECT create_store_with_users('New Example Store', '789 Elm St', 'Springfield', 'IL', '62701');
--- SELECT create_store_with_users('Another Test Store', '100 Market St', 'Portland', 'OR', '97204');
---===================================================================================================================
+-- SELECT create_store_with_users('New Example Store', '789 Elm St', 'Springfield', 'IL', '62701', 'newexample@store.com');
+-- SELECT create_store_with_users('Another Test Store', '100 Market St', 'Portland', 'OR', '97204', 'anothertest@store.com');
