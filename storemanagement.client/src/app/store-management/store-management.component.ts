@@ -18,6 +18,8 @@ import { StoreService } from '../services/store.service';
 import { Store } from '../models/store.interface';
 import { CreateStoreModalComponent } from './create-store-modal.component';
 import { EditStoreModalComponent } from './edit-store-modal.component';
+import { ManageUsersModalComponent } from './manage-users-modal.component';
+import { StoreDetailsModalComponent } from './store-details-modal.component';
 import { ConfirmationModalComponent } from '../shared/confirmation-modal.component';
 
 @Component({
@@ -104,12 +106,13 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
                 </td>
               </ng-container>
 
-              <!-- Address Column -->
-              <ng-container matColumnDef="address">
-                <th mat-header-cell *matHeaderCellDef>Address</th>
+              <!-- Email Column -->
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
                 <td mat-cell *matCellDef="let store">
-                  <div class="address-cell" [matTooltip]="store.address">
-                    {{ store.address.length > 50 ? (store.address | slice:0:50) + '...' : store.address }}
+                  <div class="email-cell">
+                    <mat-icon class="email-icon">email</mat-icon>
+                    <a href="mailto:{{ store.email }}" class="email-link">{{ store.email }}</a>
                   </div>
                 </td>
               </ng-container>
@@ -118,28 +121,20 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
               <ng-container matColumnDef="phone">
                 <th mat-header-cell *matHeaderCellDef>Phone</th>
                 <td mat-cell *matCellDef="let store">
-                  <a href="tel:{{ store.phone }}" class="phone-link">
-                    <mat-icon>phone</mat-icon>
-                    {{ store.phone }}
-                  </a>
+                  <div class="phone-cell">
+                    <mat-icon class="phone-icon">phone</mat-icon>
+                    <a href="tel:{{ store.phone }}" class="phone-link">{{ store.phone }}</a>
+                  </div>
                 </td>
               </ng-container>
 
-              <!-- Users Column -->
-              <ng-container matColumnDef="users">
-                <th mat-header-cell *matHeaderCellDef>Default Users</th>
+              <!-- Address Column -->
+              <ng-container matColumnDef="address">
+                <th mat-header-cell *matHeaderCellDef>Address</th>
                 <td mat-cell *matCellDef="let store">
-                  <div class="users-info">
-                    <mat-chip-set>
-                      <mat-chip class="maker-chip">
-                        <mat-icon matChipAvatar>person</mat-icon>
-                        {{ store.makerUsername }}
-                      </mat-chip>
-                      <mat-chip class="checker-chip">
-                        <mat-icon matChipAvatar>verified_user</mat-icon>
-                        {{ store.checkerUsername }}
-                      </mat-chip>
-                    </mat-chip-set>
+                  <div class="address-cell" [matTooltip]="store.address">
+                    <mat-icon class="location-icon">location_on</mat-icon>
+                    {{ store.address && store.address.length > 40 ? (store.address | slice:0:40) + '...' : store.address }}
                   </div>
                 </td>
               </ng-container>
@@ -163,18 +158,23 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
                   <div class="action-buttons">
                     <button mat-icon-button color="primary" 
                             (click)="openEditStoreModal(store)" 
-                            matTooltip="Edit store & manage users">
+                            matTooltip="Edit store">
                       <mat-icon>edit</mat-icon>
                     </button>
                     <button mat-icon-button color="accent" 
-                            (click)="openEditStoreModal(store, 1)" 
-                            matTooltip="Manage users">
-                      <mat-icon>group</mat-icon>
+                            (click)="viewStoreDetails(store)" 
+                            matTooltip="View details">
+                      <mat-icon>visibility</mat-icon>
                     </button>
                     <button mat-icon-button color="warn" 
                             (click)="deleteStore(store)" 
                             matTooltip="Delete store">
                       <mat-icon>delete</mat-icon>
+                    </button>
+                    <button mat-icon-button color="primary" 
+                            (click)="manageUsers(store)" 
+                            matTooltip="Manage users">
+                      <mat-icon>people</mat-icon>
                     </button>
                   </div>
                 </td>
@@ -355,10 +355,51 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       min-width: 800px;
     }
 
+    .email-cell,
+    .phone-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .email-icon {
+      color: #1976d2;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .phone-icon {
+      color: #2e7d32;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .location-icon {
+      color: #f57c00;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .email-link,
+    .phone-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .email-link:hover,
+    .phone-link:hover {
+      text-decoration: underline;
+    }
+
     .store-key-chip {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       font-weight: 600;
+      font-family: monospace;
+      letter-spacing: 1px;
     }
 
     .store-name {
@@ -467,11 +508,12 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
 export class StoreManagementComponent implements OnInit, AfterViewInit {
   private readonly storeService = inject(StoreService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['storeKey', 'name', 'address', 'phone', 'users', 'status', 'actions'];
+  displayedColumns: string[] = ['storeKey', 'name', 'email', 'phone', 'address', 'status', 'actions'];
   dataSource = new MatTableDataSource<Store>([]);
 
   ngOnInit(): void {
@@ -492,7 +534,10 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Error loading stores:', error);
-        alert('Error loading stores');
+        this.snackBar.open('❌ Failed to load stores. Please refresh the page.', 'Close', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
@@ -511,7 +556,7 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openEditStoreModal(store: Store, tabIndex: number = 0): void {
+  openEditStoreModal(store: Store): void {
     const dialogRef = this.dialog.open(EditStoreModalComponent, {
       width: '800px',
       maxHeight: '90vh',
@@ -519,17 +564,8 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
       data: { store }
     });
 
-    // Set the selected tab if specified
-    if (tabIndex > 0) {
-      setTimeout(() => {
-        const tabGroup = dialogRef.componentInstance;
-        // This would require additional setup to control the tab selection
-      }, 0);
-    }
-
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Store was updated successfully
         this.loadStores();
       }
     });
@@ -539,13 +575,24 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
     this.storeService.toggleStoreStatus(store.id!).subscribe({
       next: (response) => {
         if (response.success) {
-          alert(response.message);
+          this.snackBar.open(`✅ ${response.message}`, 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
           this.loadStores();
+        } else {
+          this.snackBar.open(`❌ ${response.message}`, 'Close', {
+            duration: 4000,
+            panelClass: ['error-snackbar']
+          });
         }
       },
       error: (error) => {
         console.error('Error updating store status:', error);
-        alert('Error updating store status');
+        this.snackBar.open('❌ Failed to update store status. Please try again.', 'Close', {
+          duration: 4000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
@@ -568,16 +615,51 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
         this.storeService.deleteStore(store.id!).subscribe({
           next: (response) => {
             if (response.success) {
-              alert(response.message);
+              this.snackBar.open(`✅ ${response.message}`, 'Close', {
+                duration: 4000,
+                panelClass: ['success-snackbar']
+              });
               this.loadStores();
+            } else {
+              this.snackBar.open(`❌ ${response.message}`, 'Close', {
+                duration: 4000,
+                panelClass: ['error-snackbar']
+              });
             }
           },
           error: (error) => {
             console.error('Error deleting store:', error);
-            alert('Error deleting store');
+            this.snackBar.open('❌ Failed to delete store. Please try again.', 'Close', {
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }
+    });
+  }
+
+  viewStoreDetails(store: Store): void {
+    const dialogRef = this.dialog.open(StoreDetailsModalComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: { store }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Modal closed, no action needed
+    });
+  }
+
+  manageUsers(store: Store): void {
+    const dialogRef = this.dialog.open(ManageUsersModalComponent, {
+      width: '800px',
+      maxHeight: '90vh',
+      data: { store }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // No need to reload stores as user management doesn't affect store list
     });
   }
 

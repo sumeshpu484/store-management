@@ -2,8 +2,9 @@ export interface Store {
   id?: string;
   name: string;
   address: string;
+  email: string;
   phone: string;
-  storeKey: string; // 8-digit unique number
+  storeKey: string; // 6-character alphanumeric key
   makerUserId?: string;
   checkerUserId?: string;
   makerUsername?: string;
@@ -17,6 +18,7 @@ export interface Store {
 export interface CreateStoreRequest {
   name: string;
   address: string;
+  email: string;
   phone: string;
   storeKey: string;
 }
@@ -27,7 +29,7 @@ export interface StoreUser {
   email: string;
   firstName?: string;
   lastName?: string;
-  role: 'maker' | 'checker' | 'admin' | 'staff';
+  role: 'maker' | 'checker';
   storeId: string;
   storeKey: string;
   isActive: boolean;
@@ -40,7 +42,7 @@ export interface CreateUserRequest {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'maker' | 'checker' | 'admin' | 'staff';
+  role: 'maker' | 'checker';
   password: string;
   storeId: string;
 }

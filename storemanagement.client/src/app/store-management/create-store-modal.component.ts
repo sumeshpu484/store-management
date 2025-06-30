@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -60,20 +61,31 @@ import { CreateStoreRequest } from '../models/store.interface';
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="store@example.com">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="storeForm.get('email')?.hasError('required')">
+            Email address is required
+          </mat-error>
+          <mat-error *ngIf="storeForm.get('email')?.hasError('email')">
+            Please enter a valid email address
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Phone Number</mat-label>
-          <input matInput formControlName="phone" placeholder="+1-555-0123">
+          <input matInput formControlName="phone" placeholder="+91-XXXXXXXXXX" (blur)="formatPhoneNumber()">
           <mat-icon matSuffix>phone</mat-icon>
           <mat-error *ngIf="storeForm.get('phone')?.hasError('required')">
             Phone number is required
           </mat-error>
           <mat-error *ngIf="storeForm.get('phone')?.hasError('pattern')">
-            Please enter a valid phone number
+            Phone number must be in format: +91-XXXXXXXXXX (10 digits starting with 6-9)
           </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Store Key (8 digits)</mat-label>
-          <input matInput formControlName="storeKey" placeholder="12345678" maxlength="8">
+          <mat-label>Store Key (6 alphanumeric)</mat-label>            <input matInput formControlName="storeKey" placeholder="ABC123" minlength="6" style="text-transform: uppercase;">
           <mat-icon matSuffix>vpn_key</mat-icon>
           <button matSuffix mat-icon-button type="button" (click)="generateStoreKey()" 
                   matTooltip="Generate random store key">
@@ -83,7 +95,7 @@ import { CreateStoreRequest } from '../models/store.interface';
             Store key is required
           </mat-error>
           <mat-error *ngIf="storeForm.get('storeKey')?.hasError('pattern')">
-            Store key must be exactly 8 digits
+            Store key must be at least 6 alphanumeric characters
           </mat-error>
         </mat-form-field>
 
@@ -92,8 +104,8 @@ import { CreateStoreRequest } from '../models/store.interface';
           <div class="info-content">
             <strong>Note:</strong> Default maker and checker users will be automatically created:
             <ul>
-              <li><code>maker_{{ storeForm.get('storeKey')?.value || 'XXXXXXXX' }}</code></li>
-              <li><code>checker_{{ storeForm.get('storeKey')?.value || 'XXXXXXXX' }}</code></li>
+              <li><code>maker_{{ storeForm.get('storeKey')?.value || 'XXXXXX' }}</code></li>
+              <li><code>checker_{{ storeForm.get('storeKey')?.value || 'XXXXXX' }}</code></li>
             </ul>
           </div>
         </div>
@@ -198,14 +210,16 @@ export class CreateStoreModalComponent {
   private readonly dialogRef = inject(MatDialogRef<CreateStoreModalComponent>);
   private readonly fb = inject(FormBuilder);
   private readonly storeService = inject(StoreService);
+  private readonly snackBar = inject(MatSnackBar);
 
   isLoading = false;
 
   storeForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     address: ['', [Validators.required]],
-    phone: ['', [Validators.required, Validators.pattern(/^[\+]?[1-9][\d]{0,15}$/)]],
-    storeKey: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]]
+    email: ['', [Validators.required, Validators.email]],
+    phone: ['', [Validators.required, Validators.pattern(/^\+91-[6-9]\d{9}$/)]],
+    storeKey: ['', [Validators.required, Validators.pattern(/^[A-Za-z0-9]{6,}$/)]]
   });
 
   constructor() {
@@ -213,8 +227,16 @@ export class CreateStoreModalComponent {
   }
 
   generateStoreKey(): void {
-    const randomKey = Math.floor(10000000 + Math.random() * 90000000).toString();
-    this.storeForm.patchValue({ storeKey: randomKey });
+    const generatedKey = this.storeService.generateStoreKey();
+    this.storeForm.patchValue({ storeKey: generatedKey });
+  }
+
+  formatPhoneNumber(): void {
+    const phoneControl = this.storeForm.get('phone');
+    if (phoneControl?.value) {
+      const formatted = this.storeService.formatPhoneNumber(phoneControl.value);
+      phoneControl.setValue(formatted);
+    }
   }
 
   async onSubmit(): Promise<void> {
@@ -226,29 +248,42 @@ export class CreateStoreModalComponent {
       const createRequest: CreateStoreRequest = {
         name: formValue.name!,
         address: formValue.address!,
+        email: formValue.email!,
         phone: formValue.phone!,
-        storeKey: formValue.storeKey!
+        storeKey: formValue.storeKey!.toUpperCase()
       };
 
       this.storeService.createStore(createRequest).subscribe({
         next: (response) => {
           if (response.success) {
+            this.snackBar.open(`✅ Store "${createRequest.name}" created successfully!`, 'Close', {
+              duration: 4000,
+              panelClass: ['success-snackbar']
+            });
             this.dialogRef.close(response.store);
-            alert('Store created successfully with default maker and checker users!');
           } else {
-            alert('Error creating store: ' + response.message);
+            this.snackBar.open(`❌ ${response.message}`, 'Close', {
+              duration: 4000,
+              panelClass: ['error-snackbar']
+            });
           }
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error creating store:', error);
-          alert('Failed to create store. Please try again.');
+          this.snackBar.open('❌ Failed to create store. Please try again.', 'Close', {
+            duration: 4000,
+            panelClass: ['error-snackbar']
+          });
           this.isLoading = false;
         }
       });
     } catch (error) {
       console.error('Error creating store:', error);
-      alert('Failed to create store. Please try again.');
+      this.snackBar.open('❌ Failed to create store. Please try again.', 'Close', {
+        duration: 4000,
+        panelClass: ['error-snackbar']
+      });
       this.isLoading = false;
     }
   }
