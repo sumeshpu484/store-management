@@ -1,4 +1,5 @@
 using StoreApp.Model.Store;
+using StoreApp.Data.Repositories;
 using System.Threading.Tasks;
 using Npgsql;
 using Dapper;
@@ -224,5 +225,31 @@ public class StoreRepository : IStoreRepository
             Success = true,
             Message = "Password reset successfully."
         };
+    }
+
+    public async Task<UnblockUserResponse> UnblockUserAsync(UnblockUserRequest request)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        var sql = @"UPDATE users SET is_active = TRUE WHERE user_id = @UserId RETURNING user_id;";
+        var userId = await connection.ExecuteScalarAsync<Guid?>(sql, new { request.UserId });
+        if (userId.HasValue)
+        {
+            return new UnblockUserResponse
+            {
+                UserId = userId.Value,
+                Success = true,
+                Message = $"User {userId.Value} has been unblocked."
+            };
+        }
+        else
+        {
+            return new UnblockUserResponse
+            {
+                UserId = request.UserId,
+                Success = false,
+                Message = "User not found or already unblocked."
+            };
+        }
     }
 }

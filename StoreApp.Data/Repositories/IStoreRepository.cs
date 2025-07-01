@@ -13,6 +13,7 @@ public interface IStoreRepository
     Task<IEnumerable<StoreUserListItem>> GetAllUsersAsync();
     Task<IEnumerable<StoreUserListItem>> GetUsersByStoreIdAsync(int storeId);
     Task<BlockUserResponse> BlockUserAsync(BlockUserRequest request);
+    Task<UnblockUserResponse> UnblockUserAsync(UnblockUserRequest request);
     Task<BlockStoreResponse> BlockStoreAsync(BlockStoreRequest request);
     Task<PasswordResetResponse> PasswordResetAsync(PasswordResetRequest request);
 }

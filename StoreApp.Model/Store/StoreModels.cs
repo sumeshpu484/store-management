@@ -101,6 +101,18 @@ public class BlockUserResponse
     public string Message { get; set; } = string.Empty;
 }
 
+public class UnblockUserRequest
+{
+    public Guid UserId { get; set; }
+}
+
+public class UnblockUserResponse
+{
+    public Guid UserId { get; set; }
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+}
+
 public class BlockStoreRequest
 {
     public int StoreId { get; set; }
@@ -127,5 +139,3 @@ public class PasswordResetResponse
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
 }
-
-public class CreateStore
