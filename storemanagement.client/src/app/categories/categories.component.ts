@@ -120,7 +120,7 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
                 <input 
                   type="text" 
                   class="form-control search-input" 
-                  placeholder="Search by name or code"
+                  placeholder="Search by name or description"
                   (keyup)="applyFilter($event)"
                   aria-label="Search categories">
                 <span class="input-group-text">
@@ -137,36 +137,13 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
         <mat-card-content>
           <div class="table-container">
             <table mat-table [dataSource]="dataSource" matSort class="categories-table">
-              <!-- Code Column -->
-              <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
-                <td mat-cell *matCellDef="let category">
-                  <mat-chip-set>
-                    <mat-chip class="code-chip">{{ category.code }}</mat-chip>
-                  </mat-chip-set>
-                </td>
-              </ng-container>
-
               <!-- Name Column -->
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Category Name</th>
                 <td mat-cell *matCellDef="let category">
-                  <div class="category-name" [style.margin-left.px]="(category.level - 1) * 20">
-                    <mat-icon [style.color]="category.colorCode" *ngIf="category.iconName">{{ category.iconName }}</mat-icon>
+                  <div class="category-name">
                     <span class="name">{{ category.name }}</span>
-                    <mat-chip class="level-chip" *ngIf="category.level > 1">
-                      L{{ category.level }}
-                    </mat-chip>
                   </div>
-                </td>
-              </ng-container>
-
-              <!-- Parent Column -->
-              <ng-container matColumnDef="parent">
-                <th mat-header-cell *matHeaderCellDef>Parent Category</th>
-                <td mat-cell *matCellDef="let category">
-                  <span *ngIf="category.parentName" class="parent-name">{{ category.parentName }}</span>
-                  <span *ngIf="!category.parentName" class="root-category">Root Category</span>
                 </td>
               </ng-container>
 
@@ -192,16 +169,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
                       inventory
                     </mat-icon>
                     <span>{{ category.totalProducts || 0 }}</span>
-                  </div>
-                </td>
-              </ng-container>
-
-              <!-- Sort Order Column -->
-              <ng-container matColumnDef="sortOrder">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Order</th>
-                <td mat-cell *matCellDef="let category">
-                  <div class="sort-order">
-                    <mat-chip class="order-chip">{{ category.sortOrder }}</mat-chip>
                   </div>
                 </td>
               </ng-container>
@@ -439,14 +406,7 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
 
     .categories-table {
       width: 100%;
-      min-width: 1000px;
-    }
-
-    .code-chip {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-weight: 600;
-      font-family: monospace;
+      min-width: 800px;
     }
 
     .category-name {
@@ -458,23 +418,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
     .category-name .name {
       font-weight: 500;
       color: #333;
-    }
-
-    .level-chip {
-      background-color: #f3e5f5;
-      color: #7b1fa2;
-      font-size: 0.7rem;
-      min-height: 20px;
-    }
-
-    .parent-name {
-      color: #666;
-      font-style: italic;
-    }
-
-    .root-category {
-      color: #2e7d32;
-      font-weight: 500;
     }
 
     .description-cell {
@@ -490,12 +433,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
 
     .products-count mat-icon {
       color: #667eea;
-    }
-
-    .order-chip {
-      background-color: #e1f5fe;
-      color: #0277bd;
-      font-weight: 600;
     }
 
     .action-buttons {
@@ -573,7 +510,7 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['code', 'name', 'parent', 'description', 'products', 'sortOrder', 'status', 'actions'];
+  displayedColumns: string[] = ['name', 'description', 'products', 'status', 'actions'];
   dataSource = new MatTableDataSource<Category>([]);
   stats: CategoryStats | null = null;
 
@@ -591,12 +528,9 @@ export class CategoriesComponent implements OnInit, AfterViewInit {
     this.categoryService.getCategories().subscribe({
       next: (response) => {
         if (response.success && response.categories) {
-          // Sort categories by level and sort order
+          // Sort categories by name
           const sortedCategories = response.categories.sort((a, b) => {
-            if (a.level !== b.level) {
-              return a.level - b.level;
-            }
-            return a.sortOrder - b.sortOrder;
+            return a.name.localeCompare(b.name);
           });
           this.dataSource.data = sortedCategories;
         }

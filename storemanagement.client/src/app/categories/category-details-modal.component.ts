@@ -30,9 +30,7 @@ interface CategoryDetailsModalData {
     <div class="category-details-modal">
       <div mat-dialog-title class="modal-header">
         <div class="title-section">
-          <mat-icon [style.color]="data.category.colorCode" class="category-icon">
-            {{ data.category.iconName || 'category' }}
-          </mat-icon>
+          <mat-icon class="category-icon">category</mat-icon>
           <h2>{{ data.category.name }}</h2>
           <mat-chip class="status-chip" [class.active]="data.category.isActive" [class.inactive]="!data.category.isActive">
             {{ data.category.isActive ? 'Active' : 'Inactive' }}
@@ -55,10 +53,6 @@ interface CategoryDetailsModalData {
             </mat-card-header>
             <mat-card-content>
               <div class="detail-row">
-                <span class="label">Category Code:</span>
-                <mat-chip class="code-chip">{{ data.category.code }}</mat-chip>
-              </div>
-              <div class="detail-row">
                 <span class="label">Category Name:</span>
                 <span class="value">{{ data.category.name }}</span>
               </div>
@@ -66,52 +60,15 @@ interface CategoryDetailsModalData {
                 <span class="label">Description:</span>
                 <span class="value">{{ data.category.description }}</span>
               </div>
-              <div class="detail-row">
-                <span class="label">Level:</span>
-                <mat-chip class="level-chip">Level {{ data.category.level }}</mat-chip>
-              </div>
-              <div class="detail-row">
-                <span class="label">Sort Order:</span>
-                <mat-chip class="order-chip">{{ data.category.sortOrder }}</mat-chip>
-              </div>
             </mat-card-content>
           </mat-card>
 
-          <!-- Hierarchy Information -->
+          <!-- Products Statistics -->
           <mat-card class="info-card">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>account_tree</mat-icon>
-                Hierarchy
-              </mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="detail-row">
-                <span class="label">Parent Category:</span>
-                <span class="value" *ngIf="data.category.parentName">{{ data.category.parentName }}</span>
-                <mat-chip class="root-chip" *ngIf="!data.category.parentName">Root Category</mat-chip>
-              </div>
-              <div class="detail-row">
-                <span class="label">Category Path:</span>
-                <span class="value category-path">
-                  <span *ngIf="data.category.parentName">{{ data.category.parentName }} > </span>
-                  <strong>{{ data.category.name }}</strong>
-                </span>
-              </div>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Products Information -->
-          <mat-card class="info-card">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon matBadge="{{ data.category.totalProducts || 0 }}" 
-                         matBadgeColor="primary" 
-                         matBadgeSize="small"
-                         [matBadgeHidden]="!data.category.totalProducts">
-                  inventory
-                </mat-icon>
-                Products
+                <mat-icon>inventory</mat-icon>
+                Products Statistics
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
@@ -135,28 +92,38 @@ interface CategoryDetailsModalData {
             </mat-card-content>
           </mat-card>
 
-          <!-- Visual Settings -->
-          <mat-card class="info-card" *ngIf="data.category.iconName || data.category.colorCode">
+          <!-- Products Statistics -->
+          <mat-card class="info-card">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>palette</mat-icon>
-                Visual Settings
+                <mat-icon>inventory</mat-icon>
+                Products Statistics
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              <div class="detail-row" *ngIf="data.category.iconName">
-                <span class="label">Icon:</span>
-                <div class="icon-preview">
-                  <mat-icon [style.color]="data.category.colorCode">{{ data.category.iconName }}</mat-icon>
-                  <span class="icon-name">{{ data.category.iconName }}</span>
-                </div>
+              <div class="detail-row">
+                <span class="label">Total Products:</span>
+                <mat-chip class="product-count-chip">{{ data.category.totalProducts || 0 }}</mat-chip>
               </div>
-              <div class="detail-row" *ngIf="data.category.colorCode">
-                <span class="label">Color:</span>
-                <div class="color-preview">
-                  <div class="color-swatch" [style.background-color]="data.category.colorCode"></div>
-                  <span class="color-code">{{ data.category.colorCode }}</span>
-                </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Timestamps -->
+          <mat-card class="info-card" *ngIf="data.category.createdAt">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>schedule</mat-icon>
+                Timestamps
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="detail-row">
+                <span class="label">Created:</span>
+                <span class="value">{{ data.category.createdAt | date:'medium' }}</span>
+              </div>
+              <div class="detail-row" *ngIf="data.category.updatedAt">
+                <span class="label">Last Updated:</span>
+                <span class="value">{{ data.category.updatedAt | date:'medium' }}</span>
               </div>
             </mat-card-content>
           </mat-card>
@@ -331,6 +298,52 @@ interface CategoryDetailsModalData {
       color: #f57c00;
     }
 
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px 24px;
+      margin: 0;
+      border-top: 1px solid #e0e0e0;
+      background-color: #f8f9fa;
+    }
+
+    .modal-actions button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 4px;
+      min-height: 40px;
+      transition: all 0.2s ease;
+    }
+
+    .modal-actions button[mat-button] {
+      color: #666;
+      border: 1px solid #ddd;
+      background-color: white;
+    }
+
+    .modal-actions button[mat-button]:hover {
+      background-color: #f5f5f5;
+      border-color: #999;
+    }
+
+    .modal-actions button[mat-raised-button] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      min-width: 140px;
+      font-weight: 500;
+    }
+
+    .modal-actions button[mat-raised-button]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
     .icon-preview, .color-preview {
       display: flex;
       align-items: center;
@@ -391,6 +404,37 @@ interface CategoryDetailsModalData {
 
       .value {
         text-align: left;
+      }
+
+      .modal-actions {
+        padding: 16px;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .modal-actions button {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .modal-actions button[mat-button] {
+        margin-right: 8px;
+      }
+
+      .modal-actions button[mat-raised-button] {
+        margin-left: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .modal-actions {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .modal-actions button {
+        width: 100%;
+        margin: 0 !important;
       }
     }
 

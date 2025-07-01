@@ -62,26 +62,6 @@ import { Category } from '../models/category.interface';
           </div>
 
           <div class="form-row">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Category Code *</mat-label>
-              <input matInput formControlName="code" placeholder="AUTO" readonly>
-              <mat-icon matSuffix>qr_code</mat-icon>
-              <mat-hint>Auto-generated from category name</mat-hint>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Parent Category</mat-label>
-              <mat-select formControlName="parentId" placeholder="Select parent category">
-                <mat-option [value]="null">-- Root Category --</mat-option>
-                <mat-option *ngFor="let category of parentCategories" [value]="category.id">
-                  {{ category.name }}
-                </mat-option>
-              </mat-select>
-              <mat-icon matSuffix>account_tree</mat-icon>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Description</mat-label>
               <textarea matInput formControlName="description" 
@@ -95,85 +75,13 @@ import { Category } from '../models/category.interface';
           </div>
 
           <div class="form-row">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Sort Order</mat-label>
-              <input matInput type="number" formControlName="sortOrder" 
-                     placeholder="Enter sort order" min="1" max="999">
-              <mat-icon matSuffix>sort</mat-icon>
-              <mat-error *ngIf="categoryForm.get('sortOrder')?.hasError('min')">
-                Sort order must be at least 1
-              </mat-error>
-              <mat-error *ngIf="categoryForm.get('sortOrder')?.hasError('max')">
-                Sort order cannot exceed 999
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Icon Name</mat-label>
-              <input matInput formControlName="iconName" placeholder="e.g., category, folder">
-              <mat-icon matSuffix>emoji_symbols</mat-icon>
-              <mat-hint>Material Design icon name</mat-hint>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Color Code</mat-label>
-              <input matInput formControlName="colorCode" placeholder="e.g., #2196F3" pattern="^#[0-9A-Fa-f]{6}$">
-              <mat-icon matSuffix>palette</mat-icon>
-              <mat-error *ngIf="categoryForm.get('colorCode')?.hasError('pattern')">
-                Please enter a valid hex color code (e.g., #2196F3)
-              </mat-error>
-            </mat-form-field>
-
-            <div class="half-width status-toggle">
+            <div class="full-width status-toggle">
               <mat-slide-toggle formControlName="isActive" class="status-switch">
                 <span class="toggle-label">
                   Category Status: 
                   <strong>{{ categoryForm.get('isActive')?.value ? 'Active' : 'Inactive' }}</strong>
                 </span>
               </mat-slide-toggle>
-            </div>
-          </div>
-
-          <!-- SEO Section -->
-          <div class="seo-section">
-            <h3 class="section-title">
-              <mat-icon>search</mat-icon>
-              SEO Information (Optional)
-            </h3>
-            
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Meta Title</mat-label>
-                <input matInput formControlName="metaTitle" placeholder="SEO meta title">
-                <mat-icon matSuffix>title</mat-icon>
-                <mat-error *ngIf="categoryForm.get('metaTitle')?.hasError('maxlength')">
-                  Meta title cannot exceed 60 characters
-                </mat-error>
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Meta Description</mat-label>
-                <textarea matInput formControlName="metaDescription" 
-                         placeholder="SEO meta description" 
-                         rows="2"></textarea>
-                <mat-icon matSuffix>description</mat-icon>
-                <mat-error *ngIf="categoryForm.get('metaDescription')?.hasError('maxlength')">
-                  Meta description cannot exceed 160 characters
-                </mat-error>
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>URL Slug</mat-label>
-                <input matInput formControlName="slug" placeholder="url-friendly-slug" readonly>
-                <mat-icon matSuffix>link</mat-icon>
-                <mat-hint>Auto-generated from category name</mat-hint>
-              </mat-form-field>
             </div>
           </div>
         </form>
@@ -187,9 +95,10 @@ import { Category } from '../models/category.interface';
         <button mat-raised-button color="primary" 
                 (click)="onSubmit()" 
                 [disabled]="categoryForm.invalid || isSubmitting"
+                [class.loading]="isSubmitting"
                 class="submit-btn">
-          <mat-icon *ngIf="!isSubmitting">add_circle</mat-icon>
-          <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+          <mat-icon *ngIf="!isSubmitting" class="btn-icon">add_circle</mat-icon>
+          <mat-spinner *ngIf="isSubmitting" diameter="20" class="btn-spinner"></mat-spinner>
           {{ isSubmitting ? 'Creating...' : 'Create Category' }}
         </button>
       </div>
@@ -298,32 +207,97 @@ import { Category } from '../models/category.interface';
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 12px;
-      padding: 16px 24px 20px;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px 24px;
       margin: 0;
       border-top: 1px solid #e0e0e0;
+      background-color: #f8f9fa;
     }
 
     .cancel-btn {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      padding: 10px 20px;
       color: #666;
+      border: 1px solid #ddd;
+      background-color: white;
+      border-radius: 4px;
+      min-height: 40px;
+      transition: all 0.2s ease;
+    }
+
+    .cancel-btn:hover {
+      background-color: #f5f5f5;
+      border-color: #999;
     }
 
     .submit-btn {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      padding: 10px 24px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
+      border: none;
+      border-radius: 4px;
       min-width: 160px;
-      justify-content: center;
+      min-height: 40px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
     }
 
     .submit-btn:disabled {
-      background: #ccc !important;
-      color: #666 !important;
+      background: #e0e0e0 !important;
+      color: #999 !important;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .submit-btn.loading {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6b59a2 100%) !important;
+      cursor: wait;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .submit-btn .btn-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn .btn-spinner {
+      width: 20px !important;
+      height: 20px !important;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .submit-btn .btn-spinner ::ng-deep circle {
+      stroke: white;
+      stroke-width: 3;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     /* Form Field Customizations */
@@ -358,13 +332,36 @@ import { Category } from '../models/category.interface';
       }
 
       .modal-actions {
-        padding: 12px 16px 16px;
+        padding: 16px;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .cancel-btn,
+      .submit-btn {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .cancel-btn {
+        margin-right: 8px;
+      }
+
+      .submit-btn {
+        margin-left: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .modal-actions {
         flex-direction: column;
+        gap: 12px;
       }
 
       .cancel-btn,
       .submit-btn {
         width: 100%;
+        margin: 0;
       }
     }
   `]
@@ -376,89 +373,36 @@ export class CreateCategoryModalComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
 
   categoryForm!: FormGroup;
-  parentCategories: Category[] = [];
   isSubmitting = false;
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadParentCategories();
-    this.setupFormValueChanges();
   }
 
   private initializeForm(): void {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      code: ['', Validators.required],
       description: ['', Validators.maxLength(500)],
-      parentId: [null],
-      sortOrder: [1, [Validators.min(1), Validators.max(999)]],
-      iconName: ['category'],
-      colorCode: ['#2196F3', Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
-      metaTitle: ['', Validators.maxLength(60)],
-      metaDescription: ['', Validators.maxLength(160)],
-      slug: [''],
       isActive: [true]
     });
   }
 
   private loadParentCategories(): void {
-    this.categoryService.getParentCategories().subscribe({
-      next: (response: any) => {
-        if (response.success && response.categories) {
-          // Only show active root categories as potential parents
-          this.parentCategories = response.categories.filter((cat: any) => 
-            cat.isActive && cat.level === 1
-          );
-        }
-      },
-      error: (error: any) => {
-        console.error('Error loading parent categories:', error);
-        this.snackBar.open('❌ Failed to load parent categories. Some features may be limited.', 'Close', {
-          duration: 4000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
+    // No longer need parent categories since we removed hierarchy
   }
 
   private setupFormValueChanges(): void {
-    // Auto-generate code from name
-    this.categoryForm.get('name')?.valueChanges.subscribe(name => {
-      if (name) {
-        const code = this.generateCategoryCode(name);
-        this.categoryForm.get('code')?.setValue(code, { emitEvent: false });
-        
-        // Auto-generate slug
-        const slug = this.generateSlug(name);
-        this.categoryForm.get('slug')?.setValue(slug, { emitEvent: false });
-      }
-    });
-
-    // Update sort order when parent changes
-    this.categoryForm.get('parentId')?.valueChanges.subscribe((parentId: any) => {
-      if (parentId) {
-        // Set default sort order for child categories
-        this.categoryForm.get('sortOrder')?.setValue(1, { emitEvent: false });
-      } else {
-        // Root category - set default sort order
-        this.categoryForm.get('sortOrder')?.setValue(1, { emitEvent: false });
-      }
-    });
+    // Remove all the auto-generation logic since we removed codes and slugs
   }
 
   private generateCategoryCode(name: string): string {
-    return name
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, '')
-      .substring(0, 8);
+    // Remove this method since we no longer use codes
+    return '';
   }
 
   private generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+    // Remove this method since we no longer use slugs  
+    return '';
   }
 
   onSubmit(): void {
@@ -473,15 +417,6 @@ export class CreateCategoryModalComponent implements OnInit {
     const categoryData: Category = {
       name: formValue.name.trim(),
       description: formValue.description?.trim() || '',
-      code: formValue.code,
-      parentId: formValue.parentId,
-      level: formValue.parentId ? 2 : 1, // Child or root
-      sortOrder: formValue.sortOrder,
-      iconName: formValue.iconName?.trim() || 'category',
-      colorCode: formValue.colorCode,
-      metaTitle: formValue.metaTitle?.trim() || '',
-      metaDescription: formValue.metaDescription?.trim() || '',
-      slug: formValue.slug,
       isActive: formValue.isActive
     };
 

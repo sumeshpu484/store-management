@@ -22,6 +22,7 @@ import { ProductService } from '../services/product.service';
 import { Product, ProductCategory, ProductStats } from '../models/product.interface';
 import { CreateProductModalComponent } from './create-product-modal.component';
 import { EditProductModalComponent } from './edit-product-modal.component';
+import { ViewProductModalComponent } from './view-product-modal.component';
 import { ConfirmationModalComponent } from '../shared/confirmation-modal.component';
 
 @Component({
@@ -108,18 +109,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
             </div>
           </mat-card-content>
         </mat-card>
-
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <mat-icon class="stat-icon perishable">schedule</mat-icon>
-              <div class="stat-details">
-                <div class="stat-number">{{ stats.perishableProducts }}</div>
-                <div class="stat-label">Perishable Items</div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
       </div>
 
       <!-- Products List -->
@@ -154,26 +143,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
         <mat-card-content>
           <div class="table-container">
             <table mat-table [dataSource]="dataSource" matSort class="products-table">
-              <!-- Image Column -->
-              <ng-container matColumnDef="image">
-                <th mat-header-cell *matHeaderCellDef>Image</th>
-                <td mat-cell *matCellDef="let product">
-                  <div class="product-image">
-                    <img [src]="product.imageUrl" [alt]="product.name" class="product-thumbnail" />
-                  </div>
-                </td>
-              </ng-container>
-
-              <!-- SKU Column -->
-              <ng-container matColumnDef="sku">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>SKU</th>
-                <td mat-cell *matCellDef="let product">
-                  <mat-chip-set>
-                    <mat-chip class="sku-chip">{{ product.sku }}</mat-chip>
-                  </mat-chip-set>
-                </td>
-              </ng-container>
-
               <!-- Name Column -->
               <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Product Name</th>
@@ -196,17 +165,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
                 </td>
               </ng-container>
 
-              <!-- Price Column -->
-              <ng-container matColumnDef="price">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
-                <td mat-cell *matCellDef="let product">
-                  <div class="price-info">
-                    <div class="selling-price">₹{{ product.price | number:'1.2-2' }}</div>
-                    <div class="cost-price">Cost: ₹{{ product.cost | number:'1.2-2' }}</div>
-                  </div>
-                </td>
-              </ng-container>
-
               <!-- Stock Column -->
               <ng-container matColumnDef="stock">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock</th>
@@ -221,21 +179,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
                       Min: {{ product.minStockLevel }} | Max: {{ product.maxStockLevel }}
                     </div>
                   </div>
-                </td>
-              </ng-container>
-
-              <!-- Tags Column -->
-              <ng-container matColumnDef="tags">
-                <th mat-header-cell *matHeaderCellDef>Tags</th>
-                <td mat-cell *matCellDef="let product">
-                  <mat-chip-set *ngIf="product.tags && product.tags.length > 0">
-                    <mat-chip *ngFor="let tag of product.tags.slice(0, 2)" class="tag-chip">
-                      {{ tag }}
-                    </mat-chip>
-                    <mat-chip *ngIf="product.tags.length > 2" class="more-tags-chip">
-                      +{{ product.tags.length - 2 }}
-                    </mat-chip>
-                  </mat-chip-set>
                 </td>
               </ng-container>
 
@@ -484,30 +427,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       min-width: 1200px;
     }
 
-    .product-image {
-      width: 50px;
-      height: 50px;
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f5f5f5;
-    }
-
-    .product-thumbnail {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .sku-chip {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-weight: 600;
-      font-family: monospace;
-    }
-
     .product-name .name {
       font-weight: 500;
       color: #333;
@@ -523,17 +442,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       background-color: #e8f5e8;
       color: #2e7d32;
       border: 1px solid #c8e6c9;
-    }
-
-    .price-info .selling-price {
-      font-weight: 600;
-      color: #2e7d32;
-      font-size: 1.1em;
-    }
-
-    .price-info .cost-price {
-      font-size: 0.85em;
-      color: #666;
     }
 
     .stock-info .stock-quantity {
@@ -552,19 +460,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
     .stock-info .stock-levels {
       font-size: 0.8em;
       color: #666;
-    }
-
-    .tag-chip {
-      background-color: #f3e5f5;
-      color: #7b1fa2;
-      border: 1px solid #e1bee7;
-      margin: 2px;
-    }
-
-    .more-tags-chip {
-      background-color: #e0e0e0;
-      color: #616161;
-      font-size: 0.8em;
     }
 
     .action-buttons {
@@ -642,7 +537,7 @@ export class ProductsComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['image', 'sku', 'name', 'category', 'price', 'stock', 'tags', 'status', 'actions'];
+  displayedColumns: string[] = ['name', 'category', 'stock', 'status', 'actions'];
   dataSource = new MatTableDataSource<Product>([]);
   stats: ProductStats | null = null;
 
@@ -718,16 +613,20 @@ export class ProductsComponent implements OnInit, AfterViewInit {
   }
 
   viewProductDetails(product: Product): void {
-    // TODO: Implement product details view
-    console.log('View product details:', product);
-    this.snackBar.open(
-      `Product Details: ${product.name} | SKU: ${product.sku} | Price: ₹${product.price} | Stock: ${product.stockQuantity} ${product.unit}`,
-      'Close',
-      {
-        duration: 5000,
-        panelClass: ['info-snackbar']
+    const dialogRef = this.dialog.open(ViewProductModalComponent, {
+      width: '700px',
+      maxHeight: '90vh',
+      data: { 
+        product: product
       }
-    );
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.action === 'edit') {
+        // If user clicked edit from the view modal, open edit modal
+        this.openEditProductModal(result.product);
+      }
+    });
   }
 
   toggleProductStatus(product: Product): void {

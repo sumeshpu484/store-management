@@ -8,10 +8,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProductService } from '../services/product.service';
 import { Product, ProductCategory } from '../models/product.interface';
@@ -29,10 +25,6 @@ import { Product, ProductCategory } from '../models/product.interface';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatChipsModule,
     MatProgressSpinnerModule
   ],
   template: `
@@ -106,61 +98,6 @@ import { Product, ProductCategory } from '../models/product.interface';
           </div>
         </div>
 
-        <!-- Product Codes -->
-        <div class="form-section">
-          <h3>Product Codes</h3>
-          <div class="form-row">
-            <mat-form-field class="half-width">
-              <mat-label>SKU *</mat-label>
-              <input matInput formControlName="sku" placeholder="Enter SKU">
-              <button mat-icon-button matSuffix type="button" (click)="generateSKU()" matTooltip="Generate SKU">
-                <mat-icon>refresh</mat-icon>
-              </button>
-              <mat-error *ngIf="productForm.get('sku')?.hasError('required')">
-                SKU is required
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field class="half-width">
-              <mat-label>Barcode</mat-label>
-              <input matInput formControlName="barcode" placeholder="Enter barcode">
-              <button mat-icon-button matSuffix type="button" (click)="generateBarcode()" matTooltip="Generate Barcode">
-                <mat-icon>refresh</mat-icon>
-              </button>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <!-- Pricing -->
-        <div class="form-section">
-          <h3>Pricing</h3>
-          <div class="form-row">
-            <mat-form-field class="half-width">
-              <mat-label>Cost Price *</mat-label>
-              <input matInput type="number" formControlName="cost" placeholder="0.00" step="0.01">
-              <span matTextPrefix>₹&nbsp;</span>
-              <mat-error *ngIf="productForm.get('cost')?.hasError('required')">
-                Cost price is required
-              </mat-error>
-              <mat-error *ngIf="productForm.get('cost')?.hasError('min')">
-                Cost price must be greater than 0
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field class="half-width">
-              <mat-label>Selling Price *</mat-label>
-              <input matInput type="number" formControlName="price" placeholder="0.00" step="0.01">
-              <span matTextPrefix>₹&nbsp;</span>
-              <mat-error *ngIf="productForm.get('price')?.hasError('required')">
-                Selling price is required
-              </mat-error>
-              <mat-error *ngIf="productForm.get('price')?.hasError('min')">
-                Selling price must be greater than 0
-              </mat-error>
-            </mat-form-field>
-          </div>
-        </div>
-
         <!-- Inventory -->
         <div class="form-section">
           <h3>Inventory Management</h3>
@@ -193,68 +130,6 @@ import { Product, ProductCategory } from '../models/product.interface';
               <mat-error *ngIf="productForm.get('maxStockLevel')?.hasError('min')">
                 Max stock level must be at least 1
               </mat-error>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <!-- Physical Properties -->
-        <div class="form-section">
-          <h3>Physical Properties</h3>
-          <div class="form-row">
-            <mat-form-field class="half-width">
-              <mat-label>Weight (kg)</mat-label>
-              <input matInput type="number" formControlName="weight" placeholder="0.00" step="0.01" min="0">
-            </mat-form-field>
-
-            <mat-form-field class="half-width">
-              <mat-label>Dimensions</mat-label>
-              <input matInput formControlName="dimensions" placeholder="e.g. 20x15x8 cm">
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field class="full-width">
-              <mat-label>Image URL</mat-label>
-              <input matInput formControlName="imageUrl" placeholder="Enter image URL">
-            </mat-form-field>
-          </div>
-        </div>
-
-        <!-- Additional Information -->
-        <div class="form-section">
-          <h3>Additional Information</h3>
-          <div class="form-row">
-            <mat-form-field class="half-width">
-              <mat-label>Supplier</mat-label>
-              <input matInput formControlName="supplier" placeholder="Enter supplier name">
-            </mat-form-field>
-
-            <mat-form-field class="half-width">
-              <mat-label>Tags (comma separated)</mat-label>
-              <input matInput formControlName="tagsInput" placeholder="e.g. electronics, wireless, premium">
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <div class="checkbox-group">
-              <mat-checkbox formControlName="isActive">Active Product</mat-checkbox>
-              <mat-checkbox formControlName="isPerishable">Perishable Item</mat-checkbox>
-            </div>
-          </div>
-
-          <div class="form-row" *ngIf="productForm.get('isPerishable')?.value">
-            <mat-form-field class="half-width">
-              <mat-label>Manufactured Date</mat-label>
-              <input matInput [matDatepicker]="mfgPicker" formControlName="manufacturedDate">
-              <mat-datepicker-toggle matIconSuffix [for]="mfgPicker"></mat-datepicker-toggle>
-              <mat-datepicker #mfgPicker></mat-datepicker>
-            </mat-form-field>
-
-            <mat-form-field class="half-width">
-              <mat-label>Expiry Date</mat-label>
-              <input matInput [matDatepicker]="expPicker" formControlName="expiryDate">
-              <mat-datepicker-toggle matIconSuffix [for]="expPicker"></mat-datepicker-toggle>
-              <mat-datepicker #expPicker></mat-datepicker>
             </mat-form-field>
           </div>
         </div>
@@ -406,24 +281,11 @@ export class CreateProductModalComponent implements OnInit {
       name: ['', [Validators.required]],
       description: [''],
       brand: [''],
-      sku: ['', [Validators.required]],
-      barcode: [''],
       categoryId: [null, [Validators.required]],
-      price: [0, [Validators.required, Validators.min(0.01)]],
-      cost: [0, [Validators.required, Validators.min(0.01)]],
       stockQuantity: [0, [Validators.required, Validators.min(0)]],
       minStockLevel: [0, [Validators.required, Validators.min(0)]],
       maxStockLevel: [0, [Validators.required, Validators.min(1)]],
-      unit: ['piece', [Validators.required]],
-      weight: [0, [Validators.min(0)]],
-      dimensions: [''],
-      imageUrl: [''],
-      supplier: [''],
-      tagsInput: [''],
-      isActive: [true],
-      isPerishable: [false],
-      manufacturedDate: [''],
-      expiryDate: ['']
+      unit: ['piece', [Validators.required]]
     });
   }
 
@@ -441,23 +303,7 @@ export class CreateProductModalComponent implements OnInit {
   }
 
   onCategoryChange(): void {
-    // Auto-generate SKU when category changes
-    if (this.productForm.get('categoryId')?.value && !this.productForm.get('sku')?.value) {
-      this.generateSKU();
-    }
-  }
-
-  generateSKU(): void {
-    const categoryId = this.productForm.get('categoryId')?.value;
-    if (categoryId) {
-      const sku = this.productService.generateSKU(categoryId);
-      this.productForm.patchValue({ sku });
-    }
-  }
-
-  generateBarcode(): void {
-    const barcode = this.productService.generateBarcode();
-    this.productForm.patchValue({ barcode });
+    // Category changed - could be used for future enhancements
   }
 
   onSubmit(): void {
@@ -465,21 +311,10 @@ export class CreateProductModalComponent implements OnInit {
       this.isSubmitting = true;
       
       const formValue = this.productForm.value;
-      
-      // Process tags
-      const tags = formValue.tagsInput 
-        ? formValue.tagsInput.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0)
-        : [];
 
       const product: Product = {
-        ...formValue,
-        tags,
-        manufacturedDate: formValue.manufacturedDate ? new Date(formValue.manufacturedDate).toISOString().split('T')[0] : undefined,
-        expiryDate: formValue.expiryDate ? new Date(formValue.expiryDate).toISOString().split('T')[0] : undefined
+        ...formValue
       };
-
-      // Remove tagsInput from the final product object
-      delete (product as any).tagsInput;
 
       this.productService.createProduct(product).subscribe({
         next: (response) => {

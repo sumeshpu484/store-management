@@ -11,25 +11,14 @@ export class ProductService {
       id: 1,
       name: 'Wireless Bluetooth Headphones',
       description: 'High-quality wireless headphones with noise cancellation',
-      sku: 'WBH-001',
-      barcode: '1234567890123',
       categoryId: 1,
       categoryName: 'Electronics',
-      price: 99.99,
-      cost: 65.00,
       stockQuantity: 25,
       minStockLevel: 5,
       maxStockLevel: 100,
       unit: 'piece',
       brand: 'TechBrand',
-      supplier: 'Electronics Supplier Inc.',
-      supplierId: 1,
       isActive: true,
-      isPerishable: false,
-      weight: 0.3,
-      dimensions: '20x15x8 cm',
-      imageUrl: 'https://via.placeholder.com/150/0066cc/FFFFFF?text=Headphones',
-      tags: ['wireless', 'bluetooth', 'audio'],
       createdAt: '2024-01-15T10:30:00Z',
       updatedAt: '2024-01-20T14:45:00Z',
       createdBy: 'admin',
@@ -39,27 +28,14 @@ export class ProductService {
       id: 2,
       name: 'Organic Coffee Beans',
       description: 'Premium organic coffee beans from Ethiopia',
-      sku: 'OCB-002',
-      barcode: '2345678901234',
       categoryId: 2,
       categoryName: 'Food & Beverages',
-      price: 24.99,
-      cost: 15.00,
       stockQuantity: 50,
       minStockLevel: 10,
       maxStockLevel: 200,
       unit: 'kg',
       brand: 'BrewMaster',
-      supplier: 'Coffee Imports Ltd.',
-      supplierId: 2,
       isActive: true,
-      isPerishable: true,
-      expiryDate: '2024-12-31',
-      manufacturedDate: '2024-01-01',
-      weight: 1.0,
-      dimensions: '25x15x10 cm',
-      imageUrl: 'https://via.placeholder.com/150/8B4513/FFFFFF?text=Coffee',
-      tags: ['organic', 'coffee', 'premium'],
       createdAt: '2024-01-10T09:15:00Z',
       updatedAt: '2024-01-18T11:20:00Z',
       createdBy: 'admin',
@@ -69,25 +45,14 @@ export class ProductService {
       id: 3,
       name: 'Gaming Mechanical Keyboard',
       description: 'RGB mechanical keyboard with blue switches',
-      sku: 'GMK-003',
-      barcode: '3456789012345',
       categoryId: 1,
       categoryName: 'Electronics',
-      price: 149.99,
-      cost: 95.00,
       stockQuantity: 15,
       minStockLevel: 3,
       maxStockLevel: 50,
       unit: 'piece',
       brand: 'GameTech',
-      supplier: 'Gaming Gear Co.',
-      supplierId: 3,
       isActive: true,
-      isPerishable: false,
-      weight: 1.2,
-      dimensions: '45x15x4 cm',
-      imageUrl: 'https://via.placeholder.com/150/FF6600/FFFFFF?text=Keyboard',
-      tags: ['gaming', 'mechanical', 'rgb'],
       createdAt: '2024-01-12T16:00:00Z',
       updatedAt: '2024-01-22T10:30:00Z',
       createdBy: 'admin',
@@ -124,18 +89,10 @@ export class ProductService {
 
   createProduct(product: Product): Observable<ProductResponse> {
     // Validate required fields
-    if (!product.name || !product.sku || !product.categoryId) {
+    if (!product.name || !product.categoryId) {
       return of({
         success: false,
-        message: 'Name, SKU, and Category are required fields'
-      }).pipe(delay(200));
-    }
-
-    // Check if SKU already exists
-    if (this.products.some(p => p.sku === product.sku)) {
-      return of({
-        success: false,
-        message: 'SKU already exists'
+        message: 'Name and Category are required fields'
       }).pipe(delay(200));
     }
 
@@ -169,14 +126,6 @@ export class ProductService {
       return of({
         success: false,
         message: 'Product not found'
-      }).pipe(delay(200));
-    }
-
-    // Check if SKU already exists (excluding current product)
-    if (this.products.some(p => p.sku === product.sku && p.id !== id)) {
-      return of({
-        success: false,
-        message: 'SKU already exists'
       }).pipe(delay(200));
     }
 
@@ -248,36 +197,18 @@ export class ProductService {
     }).pipe(delay(200));
   }
 
-  generateSKU(categoryId: number): string {
-    const category = this.categories.find(c => c.id === categoryId);
-    const prefix = category ? category.name.substring(0, 3).toUpperCase() : 'GEN';
-    const timestamp = Date.now().toString().slice(-6);
-    return `${prefix}-${timestamp}`;
-  }
-
-  generateBarcode(): string {
-    return (Math.floor(Math.random() * 9000000000000) + 1000000000000).toString();
-  }
-
   getProductStats(): Observable<ProductStatsResponse> {
     const activeProducts = this.products.filter(p => p.isActive).length;
     const inactiveProducts = this.products.filter(p => !p.isActive).length;
     const lowStockProducts = this.products.filter(p => p.stockQuantity <= p.minStockLevel && p.stockQuantity > 0).length;
     const outOfStockProducts = this.products.filter(p => p.stockQuantity === 0).length;
-    const perishableProducts = this.products.filter(p => p.isPerishable).length;
-    
-    const totalValue = this.products.reduce((sum, p) => sum + (p.price * p.stockQuantity), 0);
-    const totalCostValue = this.products.reduce((sum, p) => sum + (p.cost * p.stockQuantity), 0);
 
     const stats: ProductStats = {
       totalProducts: this.products.length,
       activeProducts,
       inactiveProducts,
       lowStockProducts,
-      outOfStockProducts,
-      totalValue,
-      totalCostValue,
-      perishableProducts
+      outOfStockProducts
     };
 
     return of({

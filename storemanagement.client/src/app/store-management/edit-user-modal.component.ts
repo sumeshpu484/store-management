@@ -205,26 +205,73 @@ import { StoreUser } from '../models/store.interface';
     }
 
     .modal-actions {
-      padding: 16px 24px 24px 24px;
       display: flex;
-      gap: 12px;
       justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px 24px;
+      margin: 0;
+      border-top: 1px solid #e0e0e0;
+      background-color: #f8f9fa;
     }
 
     .cancel-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
       color: #666;
+      border: 1px solid #ddd;
+      background-color: white;
+      border-radius: 4px;
+      min-height: 40px;
+      transition: all 0.2s ease;
+    }
+
+    .cancel-btn:hover {
+      background-color: #f5f5f5;
+      border-color: #999;
     }
 
     .submit-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      min-width: 160px;
+      min-height: 40px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .submit-btn:disabled {
+      background: #e0e0e0 !important;
+      color: #999 !important;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     .submit-btn mat-spinner {
-      margin-right: 8px;
+      margin-right: 4px;
+    }
+
+    .submit-btn mat-icon,
+    .submit-btn mat-spinner {
+      opacity: 1;
+      transition: opacity 0.2s ease;
     }
 
     /* Responsive */
@@ -235,6 +282,39 @@ import { StoreUser } from '../models/store.interface';
 
       .half-width {
         width: 100%;
+      }
+
+      .modal-actions {
+        padding: 16px;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .cancel-btn,
+      .submit-btn {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .cancel-btn {
+        margin-right: 8px;
+      }
+
+      .submit-btn {
+        margin-left: 8px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .modal-actions {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .cancel-btn,
+      .submit-btn {
+        width: 100%;
+        margin: 0;
       }
     }
   `]
