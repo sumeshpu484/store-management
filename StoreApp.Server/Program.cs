@@ -3,11 +3,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using StoreApp.Core.Middleware;
-using StoreApp.Services.Auth;
-using StoreApp.Services.Infrastructure;
-using StoreApp.Data.Repositories;
 using StoreApp.Server;
 using StoreApp.Services.Email;
+using StoreApp.Services.Infrastructure;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -21,6 +19,17 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 builder.Services.AddSingleton<Serilog.ILogger>(Log.Logger);
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -50,8 +59,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Register services
-builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddScoped<IEmailService, GmailEmailService>();
 builder.Services.AddServerDependencies();
 
@@ -81,6 +89,9 @@ app.UseStaticFiles();
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
+
+// Use CORS before authentication and authorization
+app.UseCors();
 
 // Add authentication middleware
 app.UseAuthentication();

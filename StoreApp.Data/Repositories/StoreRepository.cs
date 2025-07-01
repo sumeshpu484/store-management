@@ -1,9 +1,7 @@
-using StoreApp.Model.Store;
-using StoreApp.Data.Repositories;
-using System.Threading.Tasks;
-using Npgsql;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
+using StoreApp.Model.Store;
 
 namespace StoreApp.Data.Repositories;
 
