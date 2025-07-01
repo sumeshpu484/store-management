@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, delay } from 'rxjs/operators';
+import { map, delay, tap } from 'rxjs/operators';
 import { Store, CreateStoreRequest, StoreResponse, StoreUser, CreateUserRequest } from '../models/store.interface';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class StoreService {
   private readonly apiUrl = '/api/stores'; // This would be your actual API endpoint
   
   // Mock data for development
-  private stores: Store[] = [
+  private mockStores: Store[] = [
     {
       id: '1',
       name: 'Downtown Store',
@@ -139,8 +139,33 @@ export class StoreService {
     }
   ];
 
-  private storesSubject = new BehaviorSubject<Store[]>(this.stores);
+  // Signals for reactive state management
+  private storesSignal = signal<Store[]>(this.mockStores);
+  private usersSignal = signal<StoreUser[]>(this.mockUsers);
+  private isLoadingSignal = signal<boolean>(false);
+  
+  // Public readonly signals
+  readonly storesData = this.storesSignal.asReadonly();
+  readonly usersData = this.usersSignal.asReadonly();
+  readonly isLoading = this.isLoadingSignal.asReadonly();
+  
+  // Computed signals
+  readonly activeStoresCount = computed(() => 
+    this.storesSignal().filter((store: Store) => store.isActive).length
+  );
+  readonly inactiveStoresCount = computed(() => 
+    this.storesSignal().filter((store: Store) => !store.isActive).length
+  );
+  readonly totalStoresCount = computed(() => this.storesSignal().length);
+
+  private storesSubject = new BehaviorSubject<Store[]>(this.mockStores);
   public stores$ = this.storesSubject.asObservable();
+
+  // Helper method to update both BehaviorSubject and Signal
+  private updateStoresState(): void {
+    this.storesSignal.set([...this.mockStores]);
+    this.storesSubject.next([...this.mockStores]);
+  }
 
   // Get all stores
   getStores(): Observable<StoreResponse> {
@@ -148,13 +173,13 @@ export class StoreService {
     return of({
       success: true,
       message: 'Stores retrieved successfully',
-      stores: this.stores
+      stores: this.mockStores
     }).pipe(delay(500)); // Simulate network delay
   }
 
   // Get store by ID
   getStoreById(id: string): Observable<StoreResponse> {
-    const store = this.stores.find(s => s.id === id);
+    const store = this.mockStores.find(s => s.id === id);
     return of({
       success: !!store,
       message: store ? 'Store found' : 'Store not found',
@@ -164,7 +189,7 @@ export class StoreService {
 
   // Get store by store key
   getStoreByKey(storeKey: string): Observable<StoreResponse> {
-    const store = this.stores.find(s => s.storeKey === storeKey);
+    const store = this.mockStores.find(s => s.storeKey === storeKey);
     return of({
       success: !!store,
       message: store ? 'Store found' : 'Store not found',
@@ -175,7 +200,7 @@ export class StoreService {
   // Create new store
   createStore(storeData: CreateStoreRequest): Observable<StoreResponse> {
     // Validate store key uniqueness
-    if (this.stores.some(s => s.storeKey === storeData.storeKey)) {
+    if (this.mockStores.some(s => s.storeKey === storeData.storeKey)) {
       return of({
         success: false,
         message: 'Store key already exists. Please use a different store key (minimum 6 alphanumeric characters).'
@@ -246,8 +271,8 @@ export class StoreService {
       createdDate: new Date()
     };
 
-    this.stores.push(newStore);
-    this.storesSubject.next([...this.stores]);
+    this.mockStores.push(newStore);
+    this.updateStoresState();
 
     return of({
       success: true,
@@ -260,7 +285,7 @@ export class StoreService {
 
   // Update store
   updateStore(id: string, storeData: Partial<Store>): Observable<StoreResponse> {
-    const index = this.stores.findIndex(s => s.id === id);
+    const index = this.mockStores.findIndex(s => s.id === id);
     
     if (index === -1) {
       return of({
@@ -270,8 +295,8 @@ export class StoreService {
     }
 
     // If updating store key, validate uniqueness
-    if (storeData.storeKey && storeData.storeKey !== this.stores[index].storeKey) {
-      if (this.stores.some((s, i) => i !== index && s.storeKey === storeData.storeKey)) {
+    if (storeData.storeKey && storeData.storeKey !== this.mockStores[index].storeKey) {
+      if (this.mockStores.some((s, i) => i !== index && s.storeKey === storeData.storeKey)) {
         return of({
           success: false,
           message: 'Store key already exists. Please use a different store key (minimum 6 alphanumeric characters).'
@@ -306,13 +331,13 @@ export class StoreService {
     }
 
     const updatedStore: Store = {
-      ...this.stores[index],
+      ...this.mockStores[index],
       ...storeData,
       updatedDate: new Date()
     };
 
-    this.stores[index] = updatedStore;
-    this.storesSubject.next([...this.stores]);
+    this.mockStores[index] = updatedStore;
+    this.updateStoresState();
 
     return of({
       success: true,
@@ -323,7 +348,7 @@ export class StoreService {
 
   // Delete store
   deleteStore(id: string): Observable<StoreResponse> {
-    const index = this.stores.findIndex(s => s.id === id);
+    const index = this.mockStores.findIndex(s => s.id === id);
     
     if (index === -1) {
       return of({
@@ -332,9 +357,9 @@ export class StoreService {
       });
     }
 
-    const deletedStore = this.stores[index];
-    this.stores.splice(index, 1);
-    this.storesSubject.next([...this.stores]);
+    const deletedStore = this.mockStores[index];
+    this.mockStores.splice(index, 1);
+    this.updateStoresState();
 
     return of({
       success: true,
@@ -345,7 +370,7 @@ export class StoreService {
 
   // Toggle store status
   toggleStoreStatus(id: string): Observable<StoreResponse> {
-    const index = this.stores.findIndex(s => s.id === id);
+    const index = this.mockStores.findIndex(s => s.id === id);
     
     if (index === -1) {
       return of({
@@ -354,14 +379,14 @@ export class StoreService {
       });
     }
 
-    this.stores[index].isActive = !this.stores[index].isActive;
-    this.stores[index].updatedDate = new Date();
-    this.storesSubject.next([...this.stores]);
+    this.mockStores[index].isActive = !this.mockStores[index].isActive;
+    this.mockStores[index].updatedDate = new Date();
+    this.updateStoresState();
 
     return of({
       success: true,
-      message: `Store "${this.stores[index].name}" ${this.stores[index].isActive ? 'activated' : 'deactivated'} successfully`,
-      store: this.stores[index]
+      message: `Store "${this.mockStores[index].name}" ${this.mockStores[index].isActive ? 'activated' : 'deactivated'} successfully`,
+      store: this.mockStores[index]
     }).pipe(delay(300));
   }
 
@@ -374,13 +399,13 @@ export class StoreService {
       for (let i = 0; i < 6; i++) {
         storeKey += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-    } while (this.stores.some(s => s.storeKey === storeKey));
+    } while (this.mockStores.some(s => s.storeKey === storeKey));
     return storeKey;
   }
 
   // Validate store key
   validateStoreKey(storeKey: string, excludeId?: string): Observable<boolean> {
-    const exists = this.stores.some(s => s.storeKey === storeKey && s.id !== excludeId);
+    const exists = this.mockStores.some(s => s.storeKey === storeKey && s.id !== excludeId);
     return of(!exists).pipe(delay(200));
   }
 
@@ -409,7 +434,7 @@ export class StoreService {
   
   // Get users for a store
   getStoreUsers(storeId: string): Observable<{success: boolean, message: string, users?: StoreUser[]}> {
-    const store = this.stores.find(s => s.id === storeId);
+    const store = this.mockStores.find(s => s.id === storeId);
     if (!store) {
       return of({
         success: false,
@@ -493,7 +518,7 @@ export class StoreService {
   // Create a new user for a store
   createUser(userData: CreateUserRequest): Observable<{success: boolean, message: string, user?: StoreUser}> {
     // Find the store to get storeKey
-    const store = this.stores.find(s => s.id === userData.storeId);
+    const store = this.mockStores.find(s => s.id === userData.storeId);
     if (!store) {
       return of({
         success: false,
@@ -545,7 +570,7 @@ export class StoreService {
 
   // Create a default maker user for a store
   createDefaultMaker(storeId: string): Observable<{success: boolean, message: string, user?: StoreUser}> {
-    const store = this.stores.find(s => s.id === storeId);
+    const store = this.mockStores.find(s => s.id === storeId);
     if (!store) {
       return of({
         success: false,
@@ -588,7 +613,7 @@ export class StoreService {
 
   // Create a default checker user for a store
   createDefaultChecker(storeId: string): Observable<{success: boolean, message: string, user?: StoreUser}> {
-    const store = this.stores.find(s => s.id === storeId);
+    const store = this.mockStores.find(s => s.id === storeId);
     if (!store) {
       return of({
         success: false,

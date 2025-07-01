@@ -104,45 +104,11 @@ import { Store } from '../models/store.interface';
 
         <mat-divider></mat-divider>
 
-        <!-- User Information -->
-        <div class="details-section">
-          <h4>
-            <mat-icon>people</mat-icon>
-            Default Users
-          </h4>
-          
-          <div class="users-grid">
-            <div class="user-card">
-              <div class="user-header">
-                <mat-icon class="user-role-icon maker-icon">person</mat-icon>
-                <span class="role-title">Maker User</span>
-              </div>
-              <div class="user-details">
-                <p><strong>Username:</strong> {{ store.makerUsername }}</p>
-                <p><strong>User ID:</strong> {{ store.makerUserId }}</p>
-              </div>
-            </div>
-
-            <div class="user-card">
-              <div class="user-header">
-                <mat-icon class="user-role-icon checker-icon">verified_user</mat-icon>
-                <span class="role-title">Checker User</span>
-              </div>
-              <div class="user-details">
-                <p><strong>Username:</strong> {{ store.checkerUsername }}</p>
-                <p><strong>User ID:</strong> {{ store.checkerUserId }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <mat-divider></mat-divider>
-
-        <!-- Statistics -->
-        <div class="details-section">
+        <!-- Store Statistics -->
+        <div class="stats-section">
           <h4>
             <mat-icon>analytics</mat-icon>
-            Quick Stats
+            Store Statistics
           </h4>
           
           <div class="stats-grid">
@@ -199,7 +165,7 @@ import { Store } from '../models/store.interface';
     }
 
     .modal-content {
-      padding: 24px;
+      padding: 0 24px;
       min-width: 600px;
       max-width: 800px;
       min-height: 400px;
@@ -248,32 +214,27 @@ import { Store } from '../models/store.interface';
     .active-chip {
       background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
       color: white;
-      font-weight: 500;
     }
 
     .inactive-chip {
       background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
       color: white;
-      font-weight: 500;
     }
 
-    .details-section {
-      margin: 16px 0;
-    }
-
-    .details-section h4 {
+    .details-section h4,
+    .stats-section h4 {
       display: flex;
       align-items: center;
       gap: 8px;
       margin: 0 0 16px 0;
-      color: #555;
+      color: #333;
       font-size: 1.1rem;
       font-weight: 500;
     }
 
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 16px;
     }
 
@@ -288,12 +249,12 @@ import { Store } from '../models/store.interface';
     }
 
     .info-icon {
-      margin-top: 4px;
+      margin-top: 2px;
       font-size: 20px;
     }
 
     .location-icon {
-      color: #ff5722;
+      color: #ff9800;
     }
 
     .email-icon {
@@ -309,7 +270,7 @@ import { Store } from '../models/store.interface';
     }
 
     .update-icon {
-      color: #ff9800;
+      color: #ff5722;
     }
 
     .info-content {
@@ -317,67 +278,17 @@ import { Store } from '../models/store.interface';
     }
 
     .info-content label {
-      display: block;
-      font-size: 0.8rem;
-      color: #666;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
       font-weight: 500;
+      color: #666;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 4px;
     }
 
     .info-content p {
       margin: 0;
       color: #333;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    .users-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-    }
-
-    .user-card {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 16px;
-      border: 1px solid #e0e0e0;
-    }
-
-    .user-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .user-role-icon {
-      font-size: 18px;
-    }
-
-    .maker-icon {
-      color: #4caf50;
-    }
-
-    .checker-icon {
-      color: #2196f3;
-    }
-
-    .role-title {
-      font-weight: 600;
-      color: #555;
-    }
-
-    .user-details p {
-      margin: 4px 0;
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    .user-details strong {
-      color: #333;
+      word-break: break-word;
     }
 
     .stats-grid {
@@ -388,35 +299,38 @@ import { Store } from '../models/store.interface';
 
     .stat-card {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 8px;
-      border: 1px solid #dee2e6;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 
     .stat-icon {
-      color: #667eea;
-      font-size: 24px;
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+      margin-bottom: 8px;
+      opacity: 0.9;
     }
 
     .stat-content {
       display: flex;
       flex-direction: column;
+      gap: 4px;
     }
 
     .stat-value {
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       font-weight: 600;
-      color: #333;
     }
 
     .stat-label {
-      font-size: 0.8rem;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 0.85rem;
+      opacity: 0.9;
     }
 
     .modal-actions {
@@ -428,32 +342,37 @@ import { Store } from '../models/store.interface';
     .close-btn {
       color: #667eea;
       font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
       .modal-content {
         min-width: auto;
-        padding: 16px;
+        padding: 0 16px;
       }
-      
+
       .store-header {
         flex-direction: column;
         gap: 12px;
         align-items: flex-start;
       }
-      
-      .info-grid,
-      .users-grid,
-      .stats-grid {
+
+      .info-grid {
         grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       }
     }
   `]
 })
 export class StoreDetailsModalComponent {
   private readonly dialogRef = inject(MatDialogRef<StoreDetailsModalComponent>);
-  
+
   store: Store;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { store: Store }) {
@@ -462,12 +381,10 @@ export class StoreDetailsModalComponent {
 
   getDaysActive(): number {
     if (!this.store.createdDate) return 0;
-    
-    const createdDate = new Date(this.store.createdDate);
-    const currentDate = new Date();
-    const timeDiff = currentDate.getTime() - createdDate.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
-    return daysDiff;
+    const created = new Date(this.store.createdDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - created.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   }
 }

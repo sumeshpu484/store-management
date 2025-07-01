@@ -98,10 +98,13 @@ import { Store } from '../models/store.interface';
           <div class="form-actions">
             <button mat-raised-button color="primary" 
                     (click)="updateStore()" 
-                    [disabled]="storeForm.invalid || isLoading">
-              <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-              <mat-icon *ngIf="!isLoading">update</mat-icon>
-              {{ isLoading ? 'Updating...' : 'Update Store' }}
+                    [disabled]="storeForm.invalid || isLoading"
+                    class="update-btn">
+              <div class="btn-content">
+                <mat-spinner diameter="20" *ngIf="isLoading" class="btn-spinner"></mat-spinner>
+                <mat-icon *ngIf="!isLoading" class="btn-icon">update</mat-icon>
+                <span>{{ isLoading ? 'Updating...' : 'Update Store' }}</span>
+              </div>
             </button>
           </div>
         </form>
@@ -141,7 +144,7 @@ import { Store } from '../models/store.interface';
 
     .modal-content {
       width: 100%;
-      padding: 24px;
+      padding: 0 24px;
     }
 
     .store-form-container {
@@ -165,16 +168,42 @@ import { Store } from '../models/store.interface';
       margin-top: 16px;
     }
 
+    .update-btn {
+      min-width: 140px;
+      height: 40px;
+    }
+
+    .btn-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .btn-spinner,
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-spinner {
+      margin: 0;
+    }
+
+    .btn-icon {
+      font-size: 20px;
+    }
+
     .modal-actions {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
       padding: 16px 24px 24px 24px;
       margin-top: 0;
-    }
-
-    mat-spinner {
-      margin-right: 8px;
     }
   `]
 })

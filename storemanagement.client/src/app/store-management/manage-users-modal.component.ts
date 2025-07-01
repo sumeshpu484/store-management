@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -16,7 +16,7 @@ import { StoreService } from '../services/store.service';
 import { Store, StoreUser } from '../models/store.interface';
 import { EditUserModalComponent } from './edit-user-modal.component';
 import { ChangePasswordModalComponent } from './change-password-modal.component';
-import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-dialog.component';
+import { ConfirmationModalComponent, ConfirmationModalData } from '../shared/confirmation-modal.component';
 
 @Component({
   selector: 'app-manage-users-modal',
@@ -66,20 +66,24 @@ import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-di
         <div class="section-header">
           <h3>
             <mat-icon>people</mat-icon>
-            Store Users ({{ users.length }})
+            Store Users ({{ usersCount() }})
           </h3>
           <div class="create-user-buttons">
             <button mat-raised-button 
                     (click)="createMakerUser()"
+                    [disabled]="isAnyOperationInProgress()"
                     class="create-user-btn create-maker-btn">
-              <mat-icon>person_add</mat-icon>
-              Create Maker
+              <mat-spinner diameter="16" *ngIf="isCreatingMaker()" class="button-spinner"></mat-spinner>
+              <mat-icon *ngIf="!isCreatingMaker()">person_add</mat-icon>
+              {{ isCreatingMaker() ? 'Creating...' : 'Create Maker' }}
             </button>
             <button mat-raised-button 
                     (click)="createCheckerUser()"
+                    [disabled]="isAnyOperationInProgress()"
                     class="create-user-btn create-checker-btn">
-              <mat-icon>person_add</mat-icon>
-              Create Checker
+              <mat-spinner diameter="16" *ngIf="isCreatingChecker()" class="button-spinner"></mat-spinner>
+              <mat-icon *ngIf="!isCreatingChecker()">person_add</mat-icon>
+              {{ isCreatingChecker() ? 'Creating...' : 'Create Checker' }}
             </button>
           </div>
         </div>
@@ -174,12 +178,32 @@ import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-di
       margin-bottom: 16px;
     }
 
+    .modal-header button {
+      width: 40px;
+      height: 40px;
+      line-height: 1;
+    }
+
+    .modal-header button mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+
     .modal-header h2 {
       display: flex;
       align-items: center;
       gap: 12px;
       margin: 0;
       color: #333;
+      line-height: 1;
+    }
+
+    .modal-header h2 mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
     .modal-content {
@@ -202,6 +226,12 @@ import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-di
       gap: 12px;
       margin: 8px 0;
       color: #666;
+      line-height: 1.4;
+    }
+
+    .info-row strong {
+      min-width: 100px;
+      display: inline-block;
     }
 
     .store-key-chip {
@@ -210,6 +240,73 @@ import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-di
       font-weight: 600;
       font-family: monospace;
       letter-spacing: 1px;
+    }
+
+    .users-section h3 {
+      margin: 0 0 16px 0;
+      color: #333;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .table-container {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .users-table {
+      width: 100%;
+    }
+
+    .users-table th {
+      font-weight: 600;
+      color: #333;
+      padding: 12px 16px;
+    }
+
+    .users-table td {
+      padding: 12px 16px;
+      vertical-align: middle;
+    }
+
+    .user-info,
+    .email-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1;
+    }
+
+    .user-info span,
+    .email-info span {
+      line-height: 1.2;
+    }
+
+    .user-icon {
+      color: #667eea;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+
+    .email-icon {
+      color: #1976d2;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+
+    .maker-chip {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+      color: white;
+    }
+
+    .checker-chip {
+      background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+      color: white;
     }
 
     .create-users-section {
@@ -231,22 +328,55 @@ import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-di
       color: #333;
       font-size: 1.1rem;
       font-weight: 500;
+      line-height: 1;
+    }
+
+    .section-header h3 mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .create-user-buttons {
       display: flex;
       gap: 12px;
+      align-items: center;
     }
 
     .create-user-btn {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       font-weight: 500;
       min-width: 140px;
+      height: 40px;
       border: none;
       color: white;
       transition: all 0.3s ease;
+      line-height: 1;
+    }
+
+    .create-user-btn mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+
+    .button-spinner {
+      width: 16px !important;
+      height: 16px !important;
+      margin: 0;
+    }
+
+    .button-spinner ::ng-deep svg {
+      width: 16px !important;
+      height: 16px !important;
+    }
+
+    .button-spinner ::ng-deep svg circle {
+      stroke: white !important;
     }
 
     .create-maker-btn {
@@ -276,90 +406,36 @@ import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-di
       background: transparent !important;
     }
 
-    .add-user-section {
-      margin-bottom: 24px;
+    .create-user-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .section-header h3 {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 0;
-      color: #333;
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-
-    .add-user-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-weight: 500;
-    }
-
-    .add-user-btn:hover {
-      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-    }
-
-    .users-section h3 {
-      margin: 0 0 16px 0;
-      color: #333;
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-
-    .table-container {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .users-table {
-      width: 100%;
-    }
-
-    .user-info,
-    .email-info {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .user-icon {
-      color: #667eea;
-      font-size: 18px;
-    }
-
-    .email-icon {
-      color: #1976d2;
-      font-size: 18px;
-    }
-
-    .maker-chip {
-      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-      color: white;
-    }
-
-    .checker-chip {
-      background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
-      color: white;
+    .create-user-btn:disabled:hover {
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     .action-buttons {
       display: flex;
       gap: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-buttons button {
+      width: 36px;
+      height: 36px;
+      line-height: 1;
+    }
+
+    .action-buttons button mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
     }
 
     .modal-actions {
@@ -383,14 +459,20 @@ import { ConfirmationDialogComponent, ConfirmationData } from './confirmation-di
         flex-direction: column;
       }
 
-      .create-user-buttons {
+      .section-header {
         flex-direction: column;
-        gap: 8px;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .create-user-buttons {
+        width: 100%;
+        justify-content: center;
       }
 
       .create-user-btn {
-        width: 100%;
-        min-width: auto;
+        flex: 1;
+        min-width: 120px;
       }
     }
   `]
@@ -404,7 +486,18 @@ export class ManageUsersModalComponent implements OnInit {
   displayedColumns: string[] = ['username', 'email', 'role', 'status', 'actions'];
   dataSource = new MatTableDataSource<StoreUser>([]);
   store: Store;
-  users: StoreUser[] = [];
+  
+  // Signals for reactive state management
+  users = signal<StoreUser[]>([]);
+  isCreatingMaker = signal<boolean>(false);
+  isCreatingChecker = signal<boolean>(false);
+  isLoading = signal<boolean>(false);
+  
+  // Computed signals
+  usersCount = computed(() => this.users().length);
+  isAnyOperationInProgress = computed(() => 
+    this.isCreatingMaker() || this.isCreatingChecker() || this.isLoading()
+  );
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { store: Store }) {
     this.store = data.store;
@@ -415,14 +508,17 @@ export class ManageUsersModalComponent implements OnInit {
   }
 
   loadUsers(): void {
+    this.isLoading.set(true);
     this.storeService.getStoreUsers(this.store.id!).subscribe({
       next: (response) => {
+        this.isLoading.set(false);
         if (response.success && response.users) {
-          this.users = response.users;
+          this.users.set(response.users);
           this.dataSource.data = response.users;
         }
       },
       error: (error) => {
+        this.isLoading.set(false);
         console.error('Error loading users:', error);
         this.snackBar.open('❌ Failed to load users', 'Close', {
           duration: 3000,
@@ -494,24 +590,28 @@ export class ManageUsersModalComponent implements OnInit {
   }
 
   createMakerUser(): void {
-    const confirmationData: ConfirmationData = {
-      title: 'Create Default Maker User',
+    if (this.isAnyOperationInProgress()) return;
+
+    const confirmationData: ConfirmationModalData = {
+      title: 'Create Maker User',
       message: `Are you sure you want to create a default maker user for store "${this.store.name}"? This will create a user with role "maker" and default credentials.`,
       confirmText: 'Create Maker',
       cancelText: 'Cancel',
       icon: 'person_add',
-      color: 'maker'
+      type: 'maker'
     };
 
-    const confirmationRef = this.dialog.open(ConfirmationDialogComponent, {
+    const confirmationRef = this.dialog.open(ConfirmationModalComponent, {
       width: '500px',
       data: confirmationData
     });
 
     confirmationRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
+        this.isCreatingMaker.set(true);
         this.storeService.createDefaultMaker(this.store.id!).subscribe({
           next: (response) => {
+            this.isCreatingMaker.set(false);
             if (response.success) {
               this.snackBar.open(`✅ ${response.message}`, 'Close', {
                 duration: 4000,
@@ -526,6 +626,7 @@ export class ManageUsersModalComponent implements OnInit {
             }
           },
           error: (error) => {
+            this.isCreatingMaker.set(false);
             console.error('Error creating maker user:', error);
             this.snackBar.open('❌ Failed to create maker user. Please try again.', 'Close', {
               duration: 4000,
@@ -538,24 +639,28 @@ export class ManageUsersModalComponent implements OnInit {
   }
 
   createCheckerUser(): void {
-    const confirmationData: ConfirmationData = {
-      title: 'Create Default Checker User',
+    if (this.isAnyOperationInProgress()) return;
+
+    const confirmationData: ConfirmationModalData = {
+      title: 'Create Checker User',
       message: `Are you sure you want to create a default checker user for store "${this.store.name}"? This will create a user with role "checker" and default credentials.`,
       confirmText: 'Create Checker',
       cancelText: 'Cancel',
       icon: 'person_add',
-      color: 'checker'
+      type: 'checker'
     };
 
-    const confirmationRef = this.dialog.open(ConfirmationDialogComponent, {
+    const confirmationRef = this.dialog.open(ConfirmationModalComponent, {
       width: '500px',
       data: confirmationData
     });
 
     confirmationRef.afterClosed().subscribe(confirmed => {
       if (confirmed) {
+        this.isCreatingChecker.set(true);
         this.storeService.createDefaultChecker(this.store.id!).subscribe({
           next: (response) => {
+            this.isCreatingChecker.set(false);
             if (response.success) {
               this.snackBar.open(`✅ ${response.message}`, 'Close', {
                 duration: 4000,
@@ -570,6 +675,7 @@ export class ManageUsersModalComponent implements OnInit {
             }
           },
           error: (error) => {
+            this.isCreatingChecker.set(false);
             console.error('Error creating checker user:', error);
             this.snackBar.open('❌ Failed to create checker user. Please try again.', 'Close', {
               duration: 4000,

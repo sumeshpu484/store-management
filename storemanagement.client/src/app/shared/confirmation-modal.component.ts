@@ -9,7 +9,7 @@ export interface ConfirmationModalData {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  type?: 'delete' | 'warning' | 'info';
+  type?: 'delete' | 'warning' | 'info' | 'maker' | 'checker';
   icon?: string;
 }
 
@@ -29,7 +29,7 @@ export interface ConfirmationModalData {
           <mat-icon class="modal-icon" [ngClass]="data.type || 'delete'">
             {{ data.icon || getDefaultIcon() }}
           </mat-icon>
-          <h2 mat-dialog-title>{{ data.title }}</h2>
+          <h3 mat-dialog-title>{{ data.title }}</h3>
         </div>
       </div>
 
@@ -45,6 +45,7 @@ export interface ConfirmationModalData {
         </button>
         <button mat-raised-button 
                 [color]="getButtonColor()"
+                [ngClass]="getButtonColor()"
                 (click)="confirm()" 
                 class="confirm-btn">
           <mat-icon>{{ getConfirmIcon() }}</mat-icon>
@@ -70,7 +71,7 @@ export interface ConfirmationModalData {
     }
 
     .modal-icon {
-      font-size: 3rem;
+      font-size: 2rem;
       width: 3rem;
       height: 3rem;
       border-radius: 50%;
@@ -94,9 +95,18 @@ export interface ConfirmationModalData {
       color: #1976d2;
     }
 
-    .modal-header h2 {
+    .modal-icon.maker {
+      background-color: #e8f5e8;
+      color: #4caf50;
+    }
+
+    .modal-icon.checker {
+      background-color: #e3f2fd;
+      color: #2196f3;
+    }
+
+    .modal-header h3 {
       margin: 0;
-      font-size: 1.5rem;
       font-weight: 600;
       color: #333;
     }
@@ -125,10 +135,12 @@ export interface ConfirmationModalData {
     .cancel-btn {
       color: #666;
       min-width: 100px;
+      height: 36px;
     }
 
     .confirm-btn {
       min-width: 120px;
+      height: 36px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -147,6 +159,32 @@ export interface ConfirmationModalData {
     .confirm-btn.mat-accent {
       background-color: #f57c00;
       color: white;
+    }
+
+    .confirm-btn.maker {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+      color: white !important;
+      border: none !important;
+    }
+
+    .confirm-btn.maker:hover {
+      background: linear-gradient(135deg, #43a047 0%, #5cb85c 100%) !important;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .confirm-btn.checker {
+      background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%) !important;
+      box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+      color: white !important;
+      border: none !important;
+    }
+
+    .confirm-btn.checker:hover {
+      background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%) !important;
+      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+      transform: translateY(-1px);
     }
 
     /* Animation */
@@ -201,6 +239,8 @@ export class ConfirmationModalComponent {
     switch (this.data.type) {
       case 'warning': return 'warning';
       case 'info': return 'info';
+      case 'maker': return 'person_add';
+      case 'checker': return 'person_add';
       case 'delete':
       default: return 'delete';
     }
@@ -210,6 +250,8 @@ export class ConfirmationModalComponent {
     switch (this.data.type) {
       case 'warning': return 'Proceed';
       case 'info': return 'OK';
+      case 'maker': return 'Create Maker';
+      case 'checker': return 'Create Checker';
       case 'delete':
       default: return 'Delete';
     }
@@ -219,6 +261,8 @@ export class ConfirmationModalComponent {
     switch (this.data.type) {
       case 'warning': return 'warning';
       case 'info': return 'check';
+      case 'maker': return 'person_add';
+      case 'checker': return 'person_add';
       case 'delete':
       default: return 'delete';
     }
@@ -228,6 +272,8 @@ export class ConfirmationModalComponent {
     switch (this.data.type) {
       case 'warning': return 'accent';
       case 'info': return 'primary';
+      case 'maker': return 'maker';
+      case 'checker': return 'checker';
       case 'delete':
       default: return 'warn';
     }

@@ -25,11 +25,9 @@ export interface ConfirmationData {
   template: `
     <div class="confirmation-dialog">
       <div class="dialog-header">
-        <div class="icon-container" *ngIf="data.icon">
-          <mat-icon [ngClass]="'icon-' + (data.color || 'primary')">
-            {{ data.icon }}
-          </mat-icon>
-        </div>
+        <mat-icon [ngClass]="getIconClass()" *ngIf="data.icon">
+          {{ data.icon }}
+        </mat-icon>
         <h2 mat-dialog-title>{{ data.title }}</h2>
       </div>
       
@@ -42,9 +40,10 @@ export interface ConfirmationData {
           {{ data.cancelText || 'Cancel' }}
         </button>
         <button mat-raised-button 
+                [ngClass]="getConfirmButtonClass()"
                 mat-dialog-close="true"
-                [ngClass]="'confirm-btn confirm-' + (data.color || 'primary')">
-          <mat-icon>{{ data.icon }}</mat-icon>
+                class="confirm-btn">
+          <mat-icon *ngIf="data.icon">{{ data.icon }}</mat-icon>
           {{ data.confirmText || 'Confirm' }}
         </button>
       </mat-dialog-actions>
@@ -59,18 +58,8 @@ export interface ConfirmationData {
     .dialog-header {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       margin-bottom: 16px;
-    }
-
-    .icon-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.05);
     }
 
     .dialog-header h2 {
@@ -78,7 +67,6 @@ export interface ConfirmationData {
       color: #333;
       font-size: 1.2rem;
       font-weight: 500;
-      flex: 1;
     }
 
     .dialog-header mat-icon {
@@ -128,14 +116,13 @@ export interface ConfirmationData {
     }
 
     .confirm-btn {
-      min-width: 120px;
+      min-width: 140px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-weight: 500;
-      color: white;
+      color: white !important;
       border: none;
-      transition: all 0.3s ease;
+      font-weight: 500;
     }
 
     .confirm-btn mat-icon {
@@ -144,59 +131,41 @@ export interface ConfirmationData {
       height: 18px;
     }
 
-    .confirm-primary {
-      background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
-      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
-    }
-
-    .confirm-primary:hover {
-      background: linear-gradient(135deg, #1565c0 0%, #2196f3 100%) !important;
-      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
-      transform: translateY(-1px);
-    }
-
-    .confirm-maker {
+    .confirm-maker-btn {
       background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
       box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
     }
 
-    .confirm-maker:hover {
+    .confirm-maker-btn:hover {
       background: linear-gradient(135deg, #43a047 0%, #5cb85c 100%) !important;
       box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
       transform: translateY(-1px);
     }
 
-    .confirm-checker {
+    .confirm-checker-btn {
       background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%) !important;
       box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
     }
 
-    .confirm-checker:hover {
+    .confirm-checker-btn:hover {
       background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%) !important;
       box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
       transform: translateY(-1px);
     }
 
-    .confirm-accent {
-      background: linear-gradient(135deg, #ff4081 0%, #ff80ab 100%) !important;
+    .confirm-primary-btn {
+      background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%) !important;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+    }
+
+    .confirm-accent-btn {
+      background: linear-gradient(135deg, #ff4081 0%, #f8bbd9 100%) !important;
       box-shadow: 0 2px 8px rgba(255, 64, 129, 0.3);
     }
 
-    .confirm-accent:hover {
-      background: linear-gradient(135deg, #f50057 0%, #ff4081 100%) !important;
-      box-shadow: 0 4px 12px rgba(255, 64, 129, 0.4);
-      transform: translateY(-1px);
-    }
-
-    .confirm-warn {
+    .confirm-warn-btn {
       background: linear-gradient(135deg, #f44336 0%, #ef5350 100%) !important;
       box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
-    }
-
-    .confirm-warn:hover {
-      background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%) !important;
-      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
-      transform: translateY(-1px);
     }
 
     .confirm-btn .mat-mdc-button-touch-target {
@@ -208,4 +177,12 @@ export class ConfirmationDialogComponent {
   private readonly dialogRef = inject(MatDialogRef<ConfirmationDialogComponent>);
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: ConfirmationData) {}
+
+  getIconClass(): string {
+    return `icon-${this.data.color || 'primary'}`;
+  }
+
+  getConfirmButtonClass(): string {
+    return `confirm-${this.data.color || 'primary'}-btn`;
+  }
 }

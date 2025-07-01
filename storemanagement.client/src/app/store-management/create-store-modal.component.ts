@@ -116,10 +116,13 @@ import { CreateStoreRequest } from '../models/store.interface';
       <button mat-button mat-dialog-close>Cancel</button>
       <button mat-raised-button color="primary" 
               (click)="onSubmit()" 
-              [disabled]="storeForm.invalid || isLoading">
-        <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-        <mat-icon *ngIf="!isLoading">add</mat-icon>
-        {{ isLoading ? 'Creating...' : 'Create Store' }}
+              [disabled]="storeForm.invalid || isLoading"
+              class="create-btn">
+        <div class="btn-content">
+          <mat-spinner diameter="20" *ngIf="isLoading" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isLoading" class="btn-icon">add</mat-icon>
+          <span>{{ isLoading ? 'Creating...' : 'Create Store' }}</span>
+        </div>
       </button>
     </mat-dialog-actions>
   `,
@@ -171,6 +174,36 @@ import { CreateStoreRequest } from '../models/store.interface';
       margin-top: 24px;
     }
 
+    .create-btn {
+      min-width: 140px;
+      height: 40px;
+    }
+
+    .btn-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .btn-spinner,
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-spinner {
+      margin: 0;
+    }
+
+    .btn-icon {
+      font-size: 20px;
+    }
+
     .info-box {
       display: flex;
       gap: 12px;
@@ -199,10 +232,6 @@ import { CreateStoreRequest } from '../models/store.interface';
       padding: 2px 4px;
       border-radius: 4px;
       font-family: 'Courier New', monospace;
-    }
-
-    mat-spinner {
-      margin-right: 8px;
     }
   `]
 })

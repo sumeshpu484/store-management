@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, AfterViewInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
@@ -18,8 +18,8 @@ import { StoreService } from '../services/store.service';
 import { Store } from '../models/store.interface';
 import { CreateStoreModalComponent } from './create-store-modal.component';
 import { EditStoreModalComponent } from './edit-store-modal.component';
-import { ManageUsersModalComponent } from './manage-users-modal.component';
 import { StoreDetailsModalComponent } from './store-details-modal.component';
+import { ManageUsersModalComponent } from './manage-users-modal.component';
 import { ConfirmationModalComponent } from '../shared/confirmation-modal.component';
 
 @Component({
@@ -53,6 +53,43 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
         <p class="page-subtitle">Manage stores, create default maker and checker users</p>
       </div>
 
+      <!-- Statistics Cards -->
+      <div class="stats-container">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon total">store</mat-icon>
+              <div class="stat-details">
+                <div class="stat-number">{{ storesCount() }}</div>
+                <div class="stat-label">Total Stores</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon active">check_circle</mat-icon>
+              <div class="stat-details">
+                <div class="stat-number">{{ activeStoresCount() }}</div>
+                <div class="stat-label">Active Stores</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon inactive">cancel</mat-icon>
+              <div class="stat-details">
+                <div class="stat-number">{{ inactiveStoresCount() }}</div>
+                <div class="stat-label">Inactive Stores</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
       <!-- Stores List -->
       <mat-card class="table-card">
         <mat-card-header>
@@ -83,7 +120,13 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
           </div>
         </mat-card-header>
         <mat-card-content>
-          <div class="table-container">
+          <!-- Loading Spinner -->
+          <div *ngIf="isLoading()" class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading stores...</p>
+          </div>
+          
+          <div class="table-container" *ngIf="!isLoading()">
             <table mat-table [dataSource]="dataSource" matSort class="stores-table">
               <!-- Store Key Column -->
               <ng-container matColumnDef="storeKey">
@@ -238,6 +281,13 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
         align-items: center;
         gap: 8px;
     }
+
+    .title-container mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: #667eea;
+    }
         
     .store-management-container {
       padding: 24px;
@@ -271,6 +321,88 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
     .page-subtitle {
       font-size: 1.1rem;
       color: #666;
+      margin: 0;
+    }
+
+    /* Statistics Cards */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.total {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .stat-icon.active {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+    }
+
+    .stat-icon.inactive {
+      background-color: #ffebee;
+      color: #d32f2f;
+    }
+
+    .stat-details {
+      flex: 1;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #333;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Loading Indicator */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      gap: 16px;
+    }
+
+    .loading-container p {
+      color: #666;
+      font-size: 1rem;
       margin: 0;
     }
 
@@ -343,6 +475,13 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       min-width: 120px;
       border-radius: 4px;
       border: none;
+      height: 40px;
+    }
+
+    .add-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .table-container {
@@ -355,8 +494,18 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       min-width: 800px;
     }
 
+    /* Table Cell Vertical Alignment */
+    .stores-table td {
+      vertical-align: middle !important;
+    }
+
+    .stores-table th {
+      vertical-align: middle !important;
+    }
+
     .email-cell,
-    .phone-cell {
+    .phone-cell,
+    .address-cell {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -367,6 +516,7 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       font-size: 18px;
       width: 18px;
       height: 18px;
+      flex-shrink: 0;
     }
 
     .phone-icon {
@@ -374,6 +524,7 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       font-size: 18px;
       width: 18px;
       height: 18px;
+      flex-shrink: 0;
     }
 
     .location-icon {
@@ -381,6 +532,7 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       font-size: 18px;
       width: 18px;
       height: 18px;
+      flex-shrink: 0;
     }
 
     .email-link,
@@ -411,6 +563,9 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
     .store-icon {
       color: #667eea;
       font-size: 18px;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
     }
 
     .address-cell {
@@ -418,6 +573,9 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .phone-link {
@@ -453,6 +611,20 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
     .action-buttons {
       display: flex;
       gap: 4px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-buttons button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-buttons mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
 
     /* Responsive */
@@ -463,6 +635,11 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
 
       .page-title {
         font-size: 2rem;
+      }
+
+      .stats-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
       }
 
       .form-row {
@@ -515,6 +692,16 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
 
   displayedColumns: string[] = ['storeKey', 'name', 'email', 'phone', 'address', 'status', 'actions'];
   dataSource = new MatTableDataSource<Store>([]);
+  
+  // Signals for reactive state management
+  stores = signal<Store[]>([]);
+  isLoading = signal<boolean>(false);
+  selectedStore = signal<Store | null>(null);
+  
+  // Computed signals
+  storesCount = computed(() => this.stores().length);
+  activeStoresCount = computed(() => this.stores().filter(store => store.isActive).length);
+  inactiveStoresCount = computed(() => this.stores().filter(store => !store.isActive).length);
 
   ngOnInit(): void {
     this.loadStores();
@@ -526,13 +713,17 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
   }
 
   loadStores(): void {
+    this.isLoading.set(true);
     this.storeService.getStores().subscribe({
       next: (response) => {
+        this.isLoading.set(false);
         if (response.success && response.stores) {
+          this.stores.set(response.stores);
           this.dataSource.data = response.stores;
         }
       },
       error: (error) => {
+        this.isLoading.set(false);
         console.error('Error loading stores:', error);
         this.snackBar.open('❌ Failed to load stores. Please refresh the page.', 'Close', {
           duration: 4000,
@@ -641,7 +832,7 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
 
   viewStoreDetails(store: Store): void {
     const dialogRef = this.dialog.open(StoreDetailsModalComponent, {
-      width: '800px',
+      width: '700px',
       maxHeight: '90vh',
       data: { store }
     });
