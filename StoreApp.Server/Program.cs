@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using StoreApp.Core.Middleware;
-using StoreApp.Services.Auth;
+using StoreApp.Server;
+using StoreApp.Services.Email;
 using StoreApp.Services.Infrastructure;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +19,25 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 builder.Services.AddSingleton<Serilog.ILogger>(Log.Logger);
-// Add services to the container.
 
-builder.Services.AddControllers();
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+
+// Add services to the container.
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
 
 // Configure JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -41,32 +60,38 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-// Register services
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, GmailEmailService>();
+builder.Services.AddServerDependencies();
 
 // Add application services
 builder.Services.AddApplicationServices(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store App API", Version = "v1" });
+});
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store App API v1");
+});
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 // Add global exception handling middleware
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
+
+// Use CORS before authentication and authorization
+app.UseCors();
 
 // Add authentication middleware
 app.UseAuthentication();
