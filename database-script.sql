@@ -51,28 +51,29 @@ CREATE TABLE IF NOT EXISTS Stores (
     state VARCHAR(50),                        -- State where the store is located
     zip_code VARCHAR(10),                     -- Zip code of the store
     email VARCHAR(255) UNIQUE,                -- Email address for the store, can be NULL but must be unique if present
+    is_active BOOLEAN DEFAULT TRUE,           -- Status of the store, defaults to active
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp when the store record was created
 );
 
 -- Add dummy data into the 'Stores' table using ON CONFLICT DO NOTHING for idempotency.
-INSERT INTO Stores (store_name, address, city, state, zip_code, email)
-VALUES ('Main Street Store', '123 Main St', 'Anytown', 'CA', '90210', 'mainstreet@example.com')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
+VALUES ('Main Street Store', '123 Main St', 'Anytown', 'CA', '90210', 'mainstreet@example.com', TRUE)
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code, email)
-VALUES ('Downtown Plaza', '456 Oak Ave', 'Metropolis', 'NY', '10001', 'downtownplaza@example.com')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
+VALUES ('Downtown Plaza', '456 Oak Ave', 'Metropolis', 'NY', '10001', 'downtownplaza@example.com', TRUE)
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code, email)
-VALUES ('Northside Market', '789 Pine Ln', 'Gotham', 'IL', '60601', 'northsidemarket@example.com')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
+VALUES ('Northside Market', '789 Pine Ln', 'Gotham', 'IL', '60601', 'northsidemarket@example.com', TRUE)
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code, email)
-VALUES ('Riverside Boutique', '101 River Rd', 'Star City', 'TX', '75001', 'riversideboutique@example.com')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
+VALUES ('Riverside Boutique', '101 River Rd', 'Star City', 'TX', '75001', 'riversideboutique@example.com', TRUE)
 ON CONFLICT (store_name) DO NOTHING;
 
-INSERT INTO Stores (store_name, address, city, state, zip_code, email)
-VALUES ('East End Emporium', '202 Bridge St', 'Central City', 'FL', '33101', 'eastendemporium@example.com')
+INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
+VALUES ('East End Emporium', '202 Bridge St', 'Central City', 'FL', '33101', 'eastendemporium@example.com', TRUE)
 ON CONFLICT (store_name) DO NOTHING;
 
 
@@ -118,7 +119,8 @@ CREATE OR REPLACE FUNCTION create_store_with_users(
     _city VARCHAR(100),
     _state VARCHAR(50),
     _zip_code VARCHAR(10),
-    _store_email VARCHAR(255) -- Added new parameter for store email
+    _store_email VARCHAR(255), -- Added new parameter for store email
+    _is_active BOOLEAN DEFAULT TRUE -- Added new parameter for store active status
 )
 RETURNS INT AS $$
 DECLARE
@@ -131,8 +133,8 @@ BEGIN
     SELECT role_id INTO store_checker_role_id FROM Roles WHERE role_name = 'store-checker';
 
     -- Insert the new store and get its ID
-    INSERT INTO Stores (store_name, address, city, state, zip_code, email) -- Included email here
-    VALUES (_store_name, _address, _city, _state, _zip_code, _store_email)
+    INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active) -- Included email and is_active here
+    VALUES (_store_name, _address, _city, _state, _zip_code, _store_email, _is_active)
     ON CONFLICT (store_name) DO NOTHING -- Still conflict on store_name for primary uniqueness
     RETURNING store_id INTO new_store_id;
 
@@ -172,5 +174,71 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Example of how to call the function:
--- SELECT create_store_with_users('New Example Store', '789 Elm St', 'Springfield', 'IL', '62701', 'newexample@store.com');
--- SELECT create_store_with_users('Another Test Store', '100 Market St', 'Portland', 'OR', '97204', 'anothertest@store.com');
+-- SELECT create_store_with_users('New Example Store', '789 Elm St', 'Springfield', 'IL', '62701', 'newexample@store.com', TRUE);
+-- SELECT create_store_with_users('Another Test Store', '100 Market St', 'Portland', 'OR', '97204', 'anothertest@store.com', TRUE);
+
+-- Create the 'Categories' table if it does not already exist.
+CREATE TABLE IF NOT EXISTS Categories (
+    category_id SERIAL PRIMARY KEY,             -- Unique identifier for the category
+    name VARCHAR(255) NOT NULL UNIQUE,          -- Name of the category, must be unique
+    description TEXT,                           -- Description of the category
+    code VARCHAR(50) UNIQUE NOT NULL,           -- Unique code for the category
+    updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of the last update
+    created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the category was created
+    is_active BOOLEAN DEFAULT TRUE              -- Status of the category, defaults to active
+);
+
+-- Add dummy data into the 'Categories' table using ON CONFLICT (code) DO NOTHING for idempotency.
+INSERT INTO Categories (name, description, code, is_active)
+VALUES ('Electronics', 'Devices and gadgets like phones, laptops, and TVs.', 'ELEC', TRUE)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO Categories (name, description, code, is_active)
+VALUES ('Apparel', 'Clothing, shoes, and accessories for men, women, and children.', 'APRL', TRUE)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO Categories (name, description, code, is_active)
+VALUES ('Home Goods', 'Items for home decor, kitchen, and living spaces.', 'HOME', TRUE)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO Categories (name, description, code, is_active)
+VALUES ('Books', 'Fiction, non-fiction, and educational books.', 'BOOK', TRUE)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO Categories (name, description, code, is_active)
+VALUES ('Groceries', 'Food and beverage items.', 'GROC', TRUE)
+ON CONFLICT (code) DO NOTHING;
+
+-- Create the 'Products' table if it does not already exist.
+CREATE TABLE IF NOT EXISTS Products (
+    product_id SERIAL PRIMARY KEY,              -- Unique identifier for the product
+    name VARCHAR(255) NOT NULL UNIQUE,          -- Name of the product, must be unique
+    description TEXT,                           -- Description of the product
+    units VARCHAR(50) NOT NULL,                 -- Unit of measurement (e.g., 'pcs', 'kg', 'liter')
+    minimum_stock INT DEFAULT 0,                -- Minimum stock level for the product
+    maximum_stock INT DEFAULT 1000,             -- Maximum stock level for the product
+    current_stock INT DEFAULT 0,                -- Current stock level of the product
+    category_id INT NOT NULL,                   -- Foreign key referencing the Categories table
+    is_active BOOLEAN DEFAULT TRUE,             -- Status of the product, defaults to active
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the product was created
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of the last update
+    FOREIGN KEY (category_id) REFERENCES Categories(category_id) -- Defines the foreign key relationship
+);
+
+-- Add 10 dummy data entries into the 'Products' table.
+-- Using ON CONFLICT (name) DO NOTHING for idempotency.
+-- We dynamically fetch category_id based on category code.
+
+INSERT INTO Products (name, description, units, minimum_stock, maximum_stock, current_stock, category_id, is_active)
+VALUES
+    ('Smartphone X', 'Latest model smartphone with advanced features.', 'pcs', 10, 200, 150, (SELECT category_id FROM Categories WHERE code = 'ELEC'), TRUE),
+    ('Laptop Pro', 'High-performance laptop for professionals.', 'pcs', 5, 100, 80, (SELECT category_id FROM Categories WHERE code = 'ELEC'), TRUE),
+    ('T-Shirt Basic', 'Comfortable cotton t-shirt, various colors.', 'pcs', 50, 500, 300, (SELECT category_id FROM Categories WHERE code = 'APRL'), TRUE),
+    ('Jeans Slim Fit', 'Stylish slim fit jeans for everyday wear.', 'pcs', 30, 300, 180, (SELECT category_id FROM Categories WHERE code = 'APRL'), TRUE),
+    ('Coffee Maker', 'Automatic drip coffee maker with timer.', 'pcs', 8, 150, 100, (SELECT category_id FROM Categories WHERE code = 'HOME'), TRUE),
+    ('Blender Pro', 'Powerful blender for smoothies and shakes.', 'pcs', 7, 120, 75, (SELECT category_id FROM Categories WHERE code = 'HOME'), TRUE),
+    ('Science Fiction Novel', 'Award-winning sci-fi novel.', 'pcs', 20, 100, 60, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
+    ('Cookbook Italian', 'Traditional Italian recipes cookbook.', 'pcs', 15, 80, 40, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
+    ('Organic Apples', 'Fresh, organic apples (per kg).', 'kg', 100, 500, 250, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE),
+    ('Whole Milk', 'Pasteurized whole milk (per liter).', 'liter', 200, 1000, 600, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE)
+ON CONFLICT (name) DO NOTHING;
