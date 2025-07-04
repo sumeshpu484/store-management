@@ -14,6 +14,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, filter } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
+import { ThemeService } from '../services/theme.service';
+import { ThemeSelectorComponent } from '../components/theme-selector.component';
 
 export interface NavigationItem {
   label: string;
@@ -39,7 +41,8 @@ export interface NavigationItem {
     MatMenuModule,
     MatDividerModule,
     MatBadgeModule,
-    MatTooltipModule
+    MatTooltipModule,
+    ThemeSelectorComponent
   ],
   template: `
     <mat-sidenav-container class="sidenav-container" autosize>
@@ -146,6 +149,9 @@ export interface NavigationItem {
           
           <span class="toolbar-spacer"></span>
           
+          <!-- Theme Selector -->
+          <app-theme-selector></app-theme-selector>
+          
           <!-- User Menu -->
           <button mat-icon-button [matMenuTriggerFor]="userMenu" *ngIf="currentUser$ | async as user">
             <img [src]="user.avatar" [alt]="user.firstName" class="user-avatar-small" />
@@ -193,6 +199,7 @@ export class LayoutComponent implements OnInit {
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly router = inject(Router);
   readonly authService = inject(AuthService);
+  private readonly themeService = inject(ThemeService);
 
   currentPageTitle = 'Dashboard';
   readonly currentUser$ = this.authService.currentUser$;

@@ -1,0 +1,96 @@
+/* Ocean Breeze Theme */
+.theme-ocean-breeze {
+  // Sidebar
+  .sidenav {
+    background-color: #ffffff;
+    color: #00695c;
+    border-right: 1px solid #b2dfdb;
+    box-shadow: 0 2px 12px rgba(0, 150, 136, 0.1);
+  }
+
+  .sidebar-header {
+    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+    color: #00695c;
+    border-bottom: 1px solid #b2dfdb;
+  }
+
+  .logo-icon {
+    color: #00796b;
+  }
+
+  .logo-text {
+    color: #00695c;
+  }
+
+  .user-info {
+    background-color: rgba(224, 242, 241, 0.7);
+    border: 1px solid rgba(0, 150, 136, 0.2);
+  }
+
+  .user-name {
+    color: #00695c;
+  }
+
+  .user-role {
+    color: #00838f;
+  }
+
+  // Navigation
+  .nav-list a {
+    color: #00695c;
+  }
+
+  .nav-list a:hover {
+    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+    color: #004d40;
+    border: 1px solid rgba(0, 150, 136, 0.2);
+  }
+
+  .nav-list a.active {
+    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+    color: #004d40;
+    border: 1px solid rgba(0, 150, 136, 0.3);
+  }
+
+  .nav-list mat-icon {
+    color: #4db6ac;
+  }
+
+  .nav-list a:hover mat-icon,
+  .nav-list a.active mat-icon {
+    color: #00695c;
+  }
+
+  // Toolbar
+  .toolbar {
+    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+    color: #00695c;
+    border-bottom: 1px solid #b2dfdb;
+  }
+
+  .toolbar-title {
+    color: #00695c;
+  }
+
+  .toolbar button mat-icon {
+    color: #00695c;
+  }
+
+  // Main content
+  .main-content {
+    background-color: #f3fdfd;
+  }
+
+  // Add buttons with white text
+  .add-btn {
+    color: #ffffff !important;
+
+    .mat-icon {
+      color: #ffffff !important;
+    }
+  }
+
+  .mat-mdc-raised-button.mat-primary.add-btn {
+    color: #ffffff !important;
+  }
+}

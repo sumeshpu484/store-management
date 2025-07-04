@@ -3,8 +3,33 @@
 // Import Bootstrap
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Import Angular Material theme (Deep Purple/Amber as configured)
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+// Import Angular Material light theme
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+// Import all theme files
+@import 'app/themes/light-blue.theme.scss';
+@import 'app/themes/dark-purple.theme.scss';
+@import 'app/themes/green-nature.theme.scss';
+@import 'app/themes/ocean-breeze.theme.scss';
+@import 'app/themes/sunset-orange.theme.scss';
+@import 'app/themes/midnight-dark.theme.scss';
+
+// Custom Light Theme Variables
+:root {
+  --primary-color: #e3f2fd;
+  --primary-dark: #bbdefb;
+  --secondary-color: #f3e5f5;
+  --accent-color: #fff3e0;
+  --background-color: #fafafa;
+  --surface-color: #ffffff;
+  --text-primary: #37474f;
+  --text-secondary: #78909c;
+  --border-color: #e0e0e0;
+  --success-color: #e8f5e8;
+  --warning-color: #fff8e1;
+  --error-color: #ffebee;
+  --info-color: #e1f5fe;
+}
 
 html, body { 
   height: 100%; 
@@ -12,8 +37,10 @@ html, body {
 
 body { 
   margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
-  background-color: #f8f9fa;
+  font-family: 'Inter', 'Segoe UI', Roboto, "Helvetica Neue", sans-serif; 
+  background-color: var(--background-color);
+  color: var(--text-primary);
+  line-height: 1.6;
 }
 
 // Bootstrap utility classes (manually defined for key features)
@@ -100,73 +127,225 @@ body {
   line-height: 1.2;
 }
 
-// Material Design customizations
+// Material Design customizations with light theme
 .mat-mdc-card {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid var(--border-color) !important;
+  background-color: var(--surface-color) !important;
+  border-radius: 12px !important;
 }
 
 .mat-mdc-form-field {
   width: 100%;
 }
 
-// Enhanced Snackbar Notifications
-.success-snackbar {
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
-  color: white !important;
+.mat-mdc-form-field-outline {
+  color: var(--border-color) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-outline {
+  color: var(--primary-dark) !important;
+}
+
+// Light theme buttons
+.mat-mdc-raised-button.mat-primary {
+  background-color: var(--primary-dark) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-raised-button.mat-accent {
+  background-color: var(--secondary-color) !important;
+  color: var(--text-primary) !important;
+}
+
+// Add button styling with white text
+.mat-mdc-raised-button.mat-primary.add-btn {
+  color: #ffffff !important;
   
-  .mat-mdc-snack-bar-label {
-    font-weight: 500;
-    font-size: 14px;
+  .mat-icon {
+    color: #ffffff !important;
   }
   
-  .mat-mdc-button {
-    color: white !important;
-    font-weight: 600;
+  span {
+    color: #ffffff !important;
   }
 }
 
-.error-snackbar {
-  background: linear-gradient(135deg, #f44336 0%, #ef5350 100%) !important;
-  color: white !important;
+// Ensure white text across all themes
+.add-btn {
+  color: #ffffff !important;
   
-  .mat-mdc-snack-bar-label {
-    font-weight: 500;
-    font-size: 14px;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
-    font-weight: 600;
+  &.mat-mdc-raised-button {
+    color: #ffffff !important;
+    
+    .mat-icon {
+      color: #ffffff !important;
+    }
   }
 }
 
-.warning-snackbar {
-  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%) !important;
-  color: white !important;
+// Theme-specific button overrides to ensure white text
+.theme-light-blue .add-btn,
+.theme-dark-purple .add-btn,
+.theme-green-nature .add-btn,
+.theme-ocean-breeze .add-btn,
+.theme-sunset-orange .add-btn,
+.theme-midnight-dark .add-btn {
+  color: #ffffff !important;
   
-  .mat-mdc-snack-bar-label {
-    font-weight: 500;
-    font-size: 14px;
+  .mat-icon {
+    color: #ffffff !important;
   }
   
-  .mat-mdc-button {
-    color: white !important;
-    font-weight: 600;
+  span {
+    color: #ffffff !important;
   }
 }
 
-.info-snackbar {
-  background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%) !important;
-  color: white !important;
+// Additional light theme utilities
+.text-primary-light {
+  color: var(--text-primary) !important;
+}
+
+.text-secondary-light {
+  color: var(--text-secondary) !important;
+}
+
+.bg-primary-light {
+  background-color: var(--primary-color) !important;
+}
+
+.bg-surface-light {
+  background-color: var(--surface-color) !important;
+}
+
+.border-light {
+  border: 1px solid var(--border-color) !important;
+}
+
+// Light theme card styles
+.card-light {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
   
-  .mat-mdc-snack-bar-label {
-    font-weight: 500;
-    font-size: 14px;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Light theme button styles
+.btn-light-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: var(--text-primary);
+  border: 1px solid var(--primary-dark);
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+  }
+}
+
+.btn-light-secondary {
+  background: linear-gradient(135deg, var(--secondary-color) 0%, #e1bee7 100%);
+  color: var(--text-primary);
+  border: 1px solid #e1bee7;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.2);
+  }
+}
+
+// Status indicators with light theme
+.status-active {
+  background-color: var(--success-color);
+  color: #2e7d32;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #c8e6c9;
+}
+
+.status-inactive {
+  background-color: var(--error-color);
+  color: #c62828;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #ffcdd2;
+}
+
+.status-pending {
+  background-color: var(--warning-color);
+  color: #ef6c00;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #ffe0b2;
+}
+
+// Light theme table styles
+.table-light {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
+  
+  th {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: var(--text-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
   }
   
-  .mat-mdc-button {
-    color: white !important;
-    font-weight: 600;
+  tr:hover {
+    background-color: var(--primary-color);
+  }
+}
+
+// Typography improvements
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+// Loading states
+.loading-light {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }
 

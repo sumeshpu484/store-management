@@ -1,0 +1,96 @@
+/* Sunset Orange Theme */
+.theme-sunset-orange {
+  // Sidebar
+  .sidenav {
+    background-color: #ffffff;
+    color: #e65100;
+    border-right: 1px solid #ffcc02;
+    box-shadow: 0 2px 12px rgba(255, 152, 0, 0.1);
+  }
+
+  .sidebar-header {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+    color: #e65100;
+    border-bottom: 1px solid #ffcc02;
+  }
+
+  .logo-icon {
+    color: #f57c00;
+  }
+
+  .logo-text {
+    color: #e65100;
+  }
+
+  .user-info {
+    background-color: rgba(255, 243, 224, 0.7);
+    border: 1px solid rgba(255, 152, 0, 0.2);
+  }
+
+  .user-name {
+    color: #e65100;
+  }
+
+  .user-role {
+    color: #f57c00;
+  }
+
+  // Navigation
+  .nav-list a {
+    color: #e65100;
+  }
+
+  .nav-list a:hover {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+    color: #bf360c;
+    border: 1px solid rgba(255, 152, 0, 0.2);
+  }
+
+  .nav-list a.active {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+    color: #bf360c;
+    border: 1px solid rgba(255, 152, 0, 0.3);
+  }
+
+  .nav-list mat-icon {
+    color: #ffb74d;
+  }
+
+  .nav-list a:hover mat-icon,
+  .nav-list a.active mat-icon {
+    color: #e65100;
+  }
+
+  // Toolbar
+  .toolbar {
+    background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+    color: #e65100;
+    border-bottom: 1px solid #ffcc02;
+  }
+
+  .toolbar-title {
+    color: #e65100;
+  }
+
+  .toolbar button mat-icon {
+    color: #e65100;
+  }
+
+  // Main content
+  .main-content {
+    background-color: #fffbf7;
+  }
+
+  // Add buttons with white text
+  .add-btn {
+    color: #ffffff !important;
+
+    .mat-icon {
+      color: #ffffff !important;
+    }
+  }
+
+  .mat-mdc-raised-button.mat-primary.add-btn {
+    color: #ffffff !important;
+  }
+}

@@ -1,0 +1,104 @@
+/* Dark Purple Theme */
+.theme-dark-purple {
+  // Sidebar
+  .sidenav {
+    background-color: #424242;
+    color: #ffffff;
+    border-right: 1px solid #616161;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar-header {
+    background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
+    color: #ffffff;
+    border-bottom: 1px solid #616161;
+  }
+
+  .logo-icon {
+    color: #ffffff;
+  }
+
+  .logo-text {
+    color: #ffffff;
+  }
+
+  .user-info {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .user-name {
+    color: #ffffff;
+  }
+
+  .user-role {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  // Navigation
+  .nav-list a {
+    color: #e0e0e0;
+  }
+
+  .nav-list a:hover {
+    background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-list a.active {
+    background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .nav-list mat-icon {
+    color: #b0bec5;
+  }
+
+  .nav-list a:hover mat-icon,
+  .nav-list a.active mat-icon {
+    color: #ffffff;
+  }
+
+  // Toolbar
+  .toolbar {
+    background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
+    color: #ffffff;
+    border-bottom: 1px solid #616161;
+  }
+
+  .toolbar-title {
+    color: #ffffff;
+  }
+
+  .toolbar button mat-icon {
+    color: #ffffff;
+  }
+
+  // Main content
+  .main-content {
+    background-color: #303030;
+    color: #ffffff;
+  }
+
+  // Cards
+  .mat-mdc-card {
+    background-color: #424242 !important;
+    color: #ffffff !important;
+    border: 1px solid #616161 !important;
+  }
+
+  // Add buttons with white text
+  .add-btn {
+    color: #ffffff !important;
+
+    .mat-icon {
+      color: #ffffff !important;
+    }
+  }
+
+  .mat-mdc-raised-button.mat-primary.add-btn {
+    color: #ffffff !important;
+  }
+}

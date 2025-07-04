@@ -1,0 +1,83 @@
+/* Light Blue Theme */
+.theme-light-blue {
+  // Sidebar
+  .sidenav {
+    background-color: #ffffff;
+    color: #37474f;
+    border-right: 1px solid #e3f2fd;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  }
+
+  .sidebar-header {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1565c0;
+    border-bottom: 1px solid #e3f2fd;
+  }
+
+  .logo-icon {
+    color: #1976d2;
+  }
+
+  .logo-text {
+    color: #1565c0;
+  }
+
+  .user-info {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(25, 118, 210, 0.1);
+  }
+
+  .user-name {
+    color: #1565c0;
+  }
+
+  .user-role {
+    color: #42a5f5;
+  }
+
+  // Navigation
+  .nav-list a:hover {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1565c0;
+    border: 1px solid rgba(25, 118, 210, 0.1);
+  }
+
+  .nav-list a.active {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1565c0;
+    border: 1px solid rgba(25, 118, 210, 0.2);
+  }
+
+  // Toolbar
+  .toolbar {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1565c0;
+    border-bottom: 1px solid #e3f2fd;
+  }
+
+  .toolbar-title {
+    color: #1565c0;
+  }
+
+  .toolbar button mat-icon {
+    color: #1565c0;
+  }
+
+  // Main content
+  .main-content {
+    background-color: #fafafa;
+  }
+
+  // Add buttons with white text
+  .add-btn {
+    color: #ffffff !important;
+
+    .mat-icon {
+      color: #ffffff !important;
+    }
+  }
+
+  .mat-mdc-raised-button.mat-primary.add-btn {
+    color: #ffffff !important;
+  }
+}

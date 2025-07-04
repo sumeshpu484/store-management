@@ -1,0 +1,113 @@
+/* Midnight Dark Theme */
+.theme-midnight-dark {
+  // Sidebar
+  .sidenav {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-right: 1px solid #37474f;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-header {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: #ffffff;
+    border-bottom: 1px solid #37474f;
+  }
+
+  .logo-icon {
+    color: #ffffff;
+  }
+
+  .logo-text {
+    color: #ffffff;
+  }
+
+  .user-info {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .user-name {
+    color: #ffffff;
+  }
+
+  .user-role {
+    color: #b0bec5;
+  }
+
+  // Navigation
+  .nav-list a {
+    color: #b0bec5;
+  }
+
+  .nav-list a:hover {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-list a.active {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .nav-list mat-icon {
+    color: #78909c;
+  }
+
+  .nav-list a:hover mat-icon,
+  .nav-list a.active mat-icon {
+    color: #ffffff;
+  }
+
+  // Toolbar
+  .toolbar {
+    background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+    color: #ffffff;
+    border-bottom: 1px solid #37474f;
+  }
+
+  .toolbar-title {
+    color: #ffffff;
+  }
+
+  .toolbar button mat-icon {
+    color: #ffffff;
+  }
+
+  // Main content
+  .main-content {
+    background-color: #121212;
+    color: #ffffff;
+  }
+
+  // Cards
+  .mat-mdc-card {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border: 1px solid #37474f !important;
+  }
+
+  // Form fields
+  .mat-mdc-form-field {
+    color: #ffffff;
+  }
+
+  .mat-mdc-form-field-outline {
+    color: #37474f !important;
+  }
+
+  // Add buttons with white text
+  .add-btn {
+    color: #ffffff !important;
+
+    .mat-icon {
+      color: #ffffff !important;
+    }
+  }
+
+  .mat-mdc-raised-button.mat-primary.add-btn {
+    color: #ffffff !important;
+  }
+}
