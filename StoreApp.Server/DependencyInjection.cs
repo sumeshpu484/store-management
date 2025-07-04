@@ -7,8 +7,10 @@ namespace StoreApp.Server
     {
         public static IServiceCollection AddServerDependencies(this IServiceCollection services)
         {
+            // Register repositories
+            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IStoreRepository, StoreRepository>();
-            // Add other server-specific DI registrations here
+
             return services;
         }
     }
