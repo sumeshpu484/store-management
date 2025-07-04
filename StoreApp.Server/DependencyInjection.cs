@@ -17,6 +17,7 @@ namespace StoreApp.Server
             // Register services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IDataSeedingService, DataSeedingService>();
+            services.AddScoped<IProductRequestRepository, ProductRequestRepository>();
 
             return services;
         }
