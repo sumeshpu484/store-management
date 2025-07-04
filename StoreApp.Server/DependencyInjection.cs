@@ -10,6 +10,7 @@ namespace StoreApp.Server
             // Register repositories
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IStoreRepository, StoreRepository>();
+            services.AddScoped<IProductRequestRepository, ProductRequestRepository>();
 
             return services;
         }
