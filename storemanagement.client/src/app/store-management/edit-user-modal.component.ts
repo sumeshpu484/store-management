@@ -10,8 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StoreService } from '../services/store.service';
-import { StoreUser } from '../models/store.interface';
+import { StoreApiService, StoreUser } from '../services/store-api.service';
 
 @Component({
   selector: 'app-edit-user-modal',
@@ -321,7 +320,7 @@ import { StoreUser } from '../models/store.interface';
 })
 export class EditUserModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly storeService = inject(StoreService);
+  private readonly storeService = inject(StoreApiService);
   private readonly dialogRef = inject(MatDialogRef<EditUserModalComponent>);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -364,9 +363,19 @@ export class EditUserModalComponent implements OnInit {
     if (this.userForm.valid) {
       this.isSubmitting = true;
       const userData = this.userForm.value;
+      const userId = this.user.user_id || this.user.userId || this.user.id;
+      
+      if (!userId) {
+        this.isSubmitting = false;
+        this.snackBar.open('❌ User ID not found', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
 
-      this.storeService.updateUser(this.user.id, userData).subscribe({
-        next: (response) => {
+      this.storeService.updateUser(userId, userData).subscribe({
+        next: (response:any) => {
           this.isSubmitting = false;
           if (response.success) {
             this.snackBar.open(`✅ User "${userData.username}" updated successfully!`, 'Close', {
@@ -381,7 +390,7 @@ export class EditUserModalComponent implements OnInit {
             });
           }
         },
-        error: (error) => {
+        error: (error:any) => {
           this.isSubmitting = false;
           console.error('Error updating user:', error);
           this.snackBar.open('❌ Failed to update user. Please try again.', 'Close', {

@@ -4,6 +4,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using StoreApp.Core.Middleware;
 using StoreApp.Server;
+using StoreApp.Services.Data;
 using StoreApp.Services.Email;
 using StoreApp.Services.Infrastructure;
 using System.Text;
@@ -82,8 +83,10 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store App API v1");
 });
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
+// Temporarily disabled Angular frontend serving for API-only development
+// Uncomment these lines when you want to serve Angular with the API
+// app.UseDefaultFiles();
+// app.UseStaticFiles();
 
 // Add global exception handling middleware
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
@@ -99,6 +102,22 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapFallbackToFile("/index.html");
+// Seed default data
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var seedingService = scope.ServiceProvider.GetRequiredService<IDataSeedingService>();
+        await seedingService.SeedDefaultUsersAsync();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error occurred while seeding data");
+    }
+}
+
+// Temporarily disabled Angular fallback routing for API-only development  
+// Uncomment this line when you want to serve Angular with the API
+// app.MapFallbackToFile("/index.html");
 
 app.Run();

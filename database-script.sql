@@ -3,7 +3,21 @@
 -- e.g., from psql command line directly, or by connecting to the default 'postgres' database.
 -- If running this script inside a specific database connection, you might omit this line
 -- and create the database manually first.
-CREATE DATABASE store_management;
+-- 
+-- PostgreSQL doesn't support "IF NOT EXISTS" for CREATE DATABASE, so we use a different approach:
+-- Method 1: Run this manually if database doesn't exist
+-- CREATE DATABASE store_management;
+--
+-- Method 2: Use this PL/pgSQL block (uncomment to use)
+/*
+DO $$
+BEGIN
+   IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'store_management') THEN
+      PERFORM dblink_exec('dbname=' || current_database(), 'CREATE DATABASE store_management');
+   END IF;
+END
+$$;
+*/
 
 -- Connect to the newly created database (or manually connect if running line by line)
 --\c store_management;
@@ -12,38 +26,42 @@ CREATE DATABASE store_management;
 -- This is required for the gen_random_uuid() function.
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create the 'Roles' table if it does not already exist.
--- This ensures that running the script multiple times won't cause an error.
-CREATE TABLE IF NOT EXISTS Roles (
+-- Drop existing tables in reverse order of dependencies to avoid foreign key constraint errors
+DROP TABLE IF EXISTS Products CASCADE;
+DROP TABLE IF EXISTS Categories CASCADE;
+DROP TABLE IF EXISTS Users CASCADE;
+DROP TABLE IF EXISTS Stores CASCADE;
+DROP TABLE IF EXISTS Roles CASCADE;
+
+-- Drop existing functions/procedures
+DROP FUNCTION IF EXISTS create_store_with_users(VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, BOOLEAN);
+
+-- Create the 'Roles' table
+CREATE TABLE Roles (
     role_id SERIAL PRIMARY KEY,             -- Unique identifier for the role, auto-increments
     role_name VARCHAR(255) NOT NULL UNIQUE, -- Name of the role, must be unique and not null
     is_active BOOLEAN DEFAULT TRUE          -- Status of the role, defaults to active (TRUE)
 );
 
--- Insert seed data into 'Roles' table using ON CONFLICT DO NOTHING for idempotency.
+-- Insert seed data into 'Roles' table
 INSERT INTO Roles (role_name, is_active)
-VALUES ('superadmin', TRUE)
-ON CONFLICT (role_name) DO NOTHING;
+VALUES ('superadmin', TRUE);
 
 INSERT INTO Roles (role_name, is_active)
-VALUES ('store-maker', TRUE)
-ON CONFLICT (role_name) DO NOTHING;
+VALUES ('store-maker', TRUE);
 
 INSERT INTO Roles (role_name, is_active)
-VALUES ('store-checker', TRUE)
-ON CONFLICT (role_name) DO NOTHING;
+VALUES ('store-checker', TRUE);
 
 INSERT INTO Roles (role_name, is_active)
-VALUES ('warehouse-checker', TRUE)
-ON CONFLICT (role_name) DO NOTHING;
+VALUES ('warehouse-checker', TRUE);
 
 INSERT INTO Roles (role_name, is_active)
-VALUES ('warehouse-maker', TRUE)
-ON CONFLICT (role_name) DO NOTHING;
+VALUES ('warehouse-maker', TRUE);
 
--- Create the 'Stores' table if it does not already exist.
+-- Create the 'Stores' table
 -- This table stores information about various retail stores.
-CREATE TABLE IF NOT EXISTS Stores (
+CREATE TABLE Stores (
     store_id SERIAL PRIMARY KEY,            -- Unique identifier for the store
     store_name VARCHAR(255) NOT NULL UNIQUE,  -- Name of the store, must be unique
     address VARCHAR(255),                     -- Street address of the store
@@ -55,31 +73,26 @@ CREATE TABLE IF NOT EXISTS Stores (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp when the store record was created
 );
 
--- Add dummy data into the 'Stores' table using ON CONFLICT DO NOTHING for idempotency.
+-- Add dummy data into the 'Stores' table
 INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
-VALUES ('Main Street Store', '123 Main St', 'Anytown', 'CA', '90210', 'mainstreet@example.com', TRUE)
-ON CONFLICT (store_name) DO NOTHING;
-
-INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
-VALUES ('Downtown Plaza', '456 Oak Ave', 'Metropolis', 'NY', '10001', 'downtownplaza@example.com', TRUE)
-ON CONFLICT (store_name) DO NOTHING;
+VALUES ('Main Street Store', '123 Main St', 'Anytown', 'CA', '90210', 'mainstreet@example.com', TRUE);
 
 INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
-VALUES ('Northside Market', '789 Pine Ln', 'Gotham', 'IL', '60601', 'northsidemarket@example.com', TRUE)
-ON CONFLICT (store_name) DO NOTHING;
+VALUES ('Downtown Plaza', '456 Oak Ave', 'Metropolis', 'NY', '10001', 'downtownplaza@example.com', TRUE);
 
 INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
-VALUES ('Riverside Boutique', '101 River Rd', 'Star City', 'TX', '75001', 'riversideboutique@example.com', TRUE)
-ON CONFLICT (store_name) DO NOTHING;
+VALUES ('Northside Market', '789 Pine Ln', 'Gotham', 'IL', '60601', 'northsidemarket@example.com', TRUE);
 
 INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
-VALUES ('East End Emporium', '202 Bridge St', 'Central City', 'FL', '33101', 'eastendemporium@example.com', TRUE)
-ON CONFLICT (store_name) DO NOTHING;
+VALUES ('Riverside Boutique', '101 River Rd', 'Star City', 'TX', '75001', 'riversideboutique@example.com', TRUE);
+
+INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active)
+VALUES ('East End Emporium', '202 Bridge St', 'Central City', 'FL', '33101', 'eastendemporium@example.com', TRUE);
 
 
--- Create the 'Users' table if it does not already exist.
+-- Create the 'Users' table
 -- This table stores user information, links to the Roles table via role_id, and now Stores via store_id.
-CREATE TABLE IF NOT EXISTS Users (
+CREATE TABLE Users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Unique identifier for the user (UUID), generated by PostgreSQL
     user_name VARCHAR(255) NOT NULL,        -- User's display name
     password_hash VARCHAR(255) NOT NULL,    -- Hashed password for security
@@ -92,9 +105,16 @@ CREATE TABLE IF NOT EXISTS Users (
     FOREIGN KEY (store_id) REFERENCES Stores(store_id) -- Defines the foreign key relationship for Stores
 );
 
--- Add dummy data into the 'Users' table using ON CONFLICT (email) DO NOTHING for idempotency.
+-- Add dummy data into the 'Users' table
 -- We use gen_random_uuid() for user_id to ensure a unique GUID, and dynamically fetch role_id and store_id.
 -- Note: Not all users may be associated with a store, so store_id can be NULL for some roles (e.g., superadmin).
+-- 
+-- DEFAULT PASSWORDS (for testing only - change in production):
+-- john_doe (superadmin): password123
+-- jane_smith (store-maker): password123  
+-- mike_jones (store-checker): password123
+-- sarah_brown (warehouse-maker): password123
+-- david_green (warehouse-checker): password123
 
 -- Using CTEs (Common Table Expressions) to make inserts more readable and robust
 WITH superadmin_role AS (SELECT role_id FROM Roles WHERE role_name = 'superadmin'),
@@ -105,12 +125,11 @@ WITH superadmin_role AS (SELECT role_id FROM Roles WHERE role_name = 'superadmin
      warehouse_maker_role AS (SELECT role_id FROM Roles WHERE role_name = 'warehouse-maker'),
      warehouse_checker_role AS (SELECT role_id FROM Roles WHERE role_name = 'warehouse-checker')
 INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
-VALUES ('john_doe', 'hashedpassword1', 'john.doe@example.com', TRUE, (SELECT role_id FROM superadmin_role), NULL),
-       ('jane_smith', 'hashedpassword2', 'jane.smith@example.com', TRUE, (SELECT role_id FROM store_maker_role), (SELECT store_id FROM main_street_store)),
-       ('mike_jones', 'hashedpassword3', 'mike.jones@example.com', TRUE, (SELECT role_id FROM store_checker_role), (SELECT store_id FROM downtown_plaza_store)),
-       ('sarah_brown', 'hashedpassword4', 'sarah.brown@example.com', TRUE, (SELECT role_id FROM warehouse_maker_role), NULL),
-       ('david_green', 'hashedpassword5', 'david.green@example.com', TRUE, (SELECT role_id FROM warehouse_checker_role), NULL)
-ON CONFLICT (email) DO NOTHING;
+VALUES ('john_doe', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'john.doe@example.com', TRUE, (SELECT role_id FROM superadmin_role), NULL),
+       ('jane_smith', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'jane.smith@example.com', TRUE, (SELECT role_id FROM store_maker_role), (SELECT store_id FROM main_street_store)),
+       ('mike_jones', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'mike.jones@example.com', TRUE, (SELECT role_id FROM store_checker_role), (SELECT store_id FROM downtown_plaza_store)),
+       ('sarah_brown', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'sarah.brown@example.com', TRUE, (SELECT role_id FROM warehouse_maker_role), NULL),
+       ('david_green', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'david.green@example.com', TRUE, (SELECT role_id FROM warehouse_checker_role), NULL);
 
 -- Stored Procedure (Function in PostgreSQL) to create a new store and default users
 CREATE OR REPLACE FUNCTION create_store_with_users(
@@ -135,39 +154,30 @@ BEGIN
     -- Insert the new store and get its ID
     INSERT INTO Stores (store_name, address, city, state, zip_code, email, is_active) -- Included email and is_active here
     VALUES (_store_name, _address, _city, _state, _zip_code, _store_email, _is_active)
-    ON CONFLICT (store_name) DO NOTHING -- Still conflict on store_name for primary uniqueness
     RETURNING store_id INTO new_store_id;
 
-    -- If the store already existed, new_store_id might be NULL or the existing ID.
-    -- We need to ensure we have the ID for the store, whether newly created or existing.
-    IF new_store_id IS NULL THEN
-        SELECT store_id INTO new_store_id FROM Stores WHERE store_name = _store_name;
-    END IF;
-
-    -- If store_id is still NULL, it means something went wrong (e.g., role_ids not found)
+    -- If store_id is NULL, it means something went wrong (e.g., role_ids not found)
     IF new_store_id IS NULL OR store_maker_role_id IS NULL OR store_checker_role_id IS NULL THEN
-        RAISE EXCEPTION 'Failed to create store or retrieve required role IDs. Check if roles exist or store name is truly unique.';
+        RAISE EXCEPTION 'Failed to create store or retrieve required role IDs. Check if roles exist.';
     END IF;
 
     -- Create default 'store-maker' user for the new store
     INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
     VALUES (LOWER(REPLACE(_store_name, ' ', '')) || '_maker', -- e.g., 'newstore_maker'
-            'default_maker_password_hash',
+            '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', -- BCrypt hash for 'password123'
             LOWER(REPLACE(_store_name, ' ', '')) || '_maker@example.com',
             TRUE,
             store_maker_role_id,
-            new_store_id)
-    ON CONFLICT (email) DO NOTHING; -- Avoid re-inserting if email already exists
+            new_store_id);
 
     -- Create default 'store-checker' user for the new store
     INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
     VALUES (LOWER(REPLACE(_store_name, ' ', '')) || '_checker', -- e.g., 'newstore_checker'
-            'default_checker_password_hash',
+            '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', -- BCrypt hash for 'password123'
             LOWER(REPLACE(_store_name, ' ', '')) || '_checker@example.com',
             TRUE,
             store_checker_role_id,
-            new_store_id)
-    ON CONFLICT (email) DO NOTHING; -- Avoid re-inserting if email already exists
+            new_store_id);
 
     RETURN new_store_id;
 END;
@@ -177,8 +187,8 @@ $$ LANGUAGE plpgsql;
 -- SELECT create_store_with_users('New Example Store', '789 Elm St', 'Springfield', 'IL', '62701', 'newexample@store.com', TRUE);
 -- SELECT create_store_with_users('Another Test Store', '100 Market St', 'Portland', 'OR', '97204', 'anothertest@store.com', TRUE);
 
--- Create the 'Categories' table if it does not already exist.
-CREATE TABLE IF NOT EXISTS Categories (
+-- Create the 'Categories' table
+CREATE TABLE Categories (
     category_id SERIAL PRIMARY KEY,             -- Unique identifier for the category
     name VARCHAR(255) NOT NULL UNIQUE,          -- Name of the category, must be unique
     description TEXT,                           -- Description of the category
@@ -188,29 +198,24 @@ CREATE TABLE IF NOT EXISTS Categories (
     is_active BOOLEAN DEFAULT TRUE              -- Status of the category, defaults to active
 );
 
--- Add dummy data into the 'Categories' table using ON CONFLICT (code) DO NOTHING for idempotency.
+-- Add dummy data into the 'Categories' table
 INSERT INTO Categories (name, description, code, is_active)
-VALUES ('Electronics', 'Devices and gadgets like phones, laptops, and TVs.', 'ELEC', TRUE)
-ON CONFLICT (code) DO NOTHING;
+VALUES ('Electronics', 'Devices and gadgets like phones, laptops, and TVs.', 'ELEC', TRUE);
 
 INSERT INTO Categories (name, description, code, is_active)
-VALUES ('Apparel', 'Clothing, shoes, and accessories for men, women, and children.', 'APRL', TRUE)
-ON CONFLICT (code) DO NOTHING;
+VALUES ('Apparel', 'Clothing, shoes, and accessories for men, women, and children.', 'APRL', TRUE);
 
 INSERT INTO Categories (name, description, code, is_active)
-VALUES ('Home Goods', 'Items for home decor, kitchen, and living spaces.', 'HOME', TRUE)
-ON CONFLICT (code) DO NOTHING;
+VALUES ('Home Goods', 'Items for home decor, kitchen, and living spaces.', 'HOME', TRUE);
 
 INSERT INTO Categories (name, description, code, is_active)
-VALUES ('Books', 'Fiction, non-fiction, and educational books.', 'BOOK', TRUE)
-ON CONFLICT (code) DO NOTHING;
+VALUES ('Books', 'Fiction, non-fiction, and educational books.', 'BOOK', TRUE);
 
 INSERT INTO Categories (name, description, code, is_active)
-VALUES ('Groceries', 'Food and beverage items.', 'GROC', TRUE)
-ON CONFLICT (code) DO NOTHING;
+VALUES ('Groceries', 'Food and beverage items.', 'GROC', TRUE);
 
--- Create the 'Products' table if it does not already exist.
-CREATE TABLE IF NOT EXISTS Products (
+-- Create the 'Products' table
+CREATE TABLE Products (
     product_id SERIAL PRIMARY KEY,              -- Unique identifier for the product
     name VARCHAR(255) NOT NULL UNIQUE,          -- Name of the product, must be unique
     description TEXT,                           -- Description of the product
@@ -240,5 +245,4 @@ VALUES
     ('Science Fiction Novel', 'Award-winning sci-fi novel.', 'pcs', 20, 100, 60, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
     ('Cookbook Italian', 'Traditional Italian recipes cookbook.', 'pcs', 15, 80, 40, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
     ('Organic Apples', 'Fresh, organic apples (per kg).', 'kg', 100, 500, 250, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE),
-    ('Whole Milk', 'Pasteurized whole milk (per liter).', 'liter', 200, 1000, 600, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE)
-ON CONFLICT (name) DO NOTHING;
+    ('Whole Milk', 'Pasteurized whole milk (per liter).', 'liter', 200, 1000, 600, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE);

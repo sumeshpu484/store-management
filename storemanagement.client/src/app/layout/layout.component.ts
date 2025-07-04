@@ -182,7 +182,7 @@ export interface NavigationItem {
 
         <!-- Page Content -->
         <div class="main-content">
-          <ng-content></ng-content>
+          <router-outlet></router-outlet>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -210,61 +210,25 @@ export class LayoutComponent implements OnInit {
       route: '/dashboard'
     },
     {
-      label: 'Home',
-      icon: 'home',
-      route: '/home'
-    },
-    { divider: true, label: '', icon: '' },
-    {
       label: 'Inventory',
       icon: 'inventory',
       children: [
         { label: 'Products', icon: 'shopping_cart', route: '/products' },
-        { label: 'Categories', icon: 'category', route: '/categories' },
-        { label: 'Stock', icon: 'inventory_2', route: '/stock', badge: 5 },
-        { label: 'Suppliers', icon: 'local_shipping', route: '/suppliers' }
+        { label: 'Categories', icon: 'category', route: '/categories' }
       ]
     },
     {
-      label: 'Sales',
-      icon: 'point_of_sale',
+      label: 'Store Management',
+      icon: 'store',
       children: [
-        { label: 'POS System', icon: 'payment', route: '/pos' },
-        { label: 'Orders', icon: 'receipt_long', route: '/orders', badge: 12 },
-        { label: 'Customers', icon: 'people', route: '/customers' },
-        { label: 'Discounts', icon: 'local_offer', route: '/discounts' }
+        { label: 'Stores', icon: 'shopping_cart', route: '/stores' }
       ]
     },
-    {
-      label: 'Reports',
-      icon: 'analytics',
-      children: [
-        { label: 'Sales Reports', icon: 'trending_up', route: '/reports/sales' },
-        { label: 'Inventory Reports', icon: 'assessment', route: '/reports/inventory' },
-        { label: 'Financial Reports', icon: 'account_balance', route: '/reports/financial' }
-      ]
-    },
-    { divider: true, label: '', icon: '' },
-    {
-      label: 'Administration',
-      icon: 'admin_panel_settings',
-      children: [
-        { label: 'Users', icon: 'people_outline', route: '/users' },
-        { label: 'Roles', icon: 'security', route: '/roles' },
-        { label: 'Settings', icon: 'settings', route: '/settings' }
-      ]
-    },
-    {
-      label: 'Test Page',
-      icon: 'science',
-      route: '/test'
-    },
-    { divider: true, label: '', icon: '' },
     {
       label: 'Help & Support',
       icon: 'help',
       route: '/help'
-    }
+    },
   ];
 
   ngOnInit(): void {
@@ -281,21 +245,7 @@ export class LayoutComponent implements OnInit {
       '/home': 'Home',
       '/products': 'Products',
       '/categories': 'Categories',
-      '/stock': 'Stock Management',
-      '/suppliers': 'Suppliers',
-      '/pos': 'Point of Sale',
-      '/orders': 'Orders',
-      '/customers': 'Customers',
-      '/discounts': 'Discounts',
-      '/reports/sales': 'Sales Reports',
-      '/reports/inventory': 'Inventory Reports',
-      '/reports/financial': 'Financial Reports',
-      '/users': 'User Management',
-      '/roles': 'Role Management',
-      '/settings': 'Settings',
-      '/test': 'Test Page',
-      '/help': 'Help & Support',
-      '/login': 'Login'
+      '/store-management': 'Store Management'
     };
 
     this.currentPageTitle = titles[url] || 'Store Management';

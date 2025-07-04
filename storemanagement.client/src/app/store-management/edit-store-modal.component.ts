@@ -8,8 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StoreService } from '../services/store.service';
-import { Store } from '../models/store.interface';
+import { StoreApiService, Store } from '../services/store-api.service';
 
 @Component({
   selector: 'app-edit-store-modal',
@@ -210,7 +209,7 @@ import { Store } from '../models/store.interface';
 export class EditStoreModalComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<EditStoreModalComponent>);
   private readonly fb = inject(FormBuilder);
-  private readonly storeService = inject(StoreService);
+  private readonly storeService = inject(StoreApiService);
   private readonly snackBar = inject(MatSnackBar);
 
   store: Store;
@@ -256,7 +255,7 @@ export class EditStoreModalComponent implements OnInit {
     };
 
     this.storeService.updateStore(this.store.id!, updateData).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success) {
           this.store = { ...this.store, ...updateData };
           this.snackBar.open(`✅ Store "${updateData.name}" updated successfully!`, 'Close', {
@@ -271,7 +270,7 @@ export class EditStoreModalComponent implements OnInit {
         }
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error updating store:', error);
         this.snackBar.open('❌ Failed to update store. Please try again.', 'Close', {
           duration: 4000,

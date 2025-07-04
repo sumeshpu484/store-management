@@ -8,8 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StoreService } from '../services/store.service';
-import { StoreUser } from '../models/store.interface';
+import { StoreApiService, StoreUser } from '../services/store-api.service';
 
 @Component({
   selector: 'app-change-password-modal',
@@ -196,7 +195,7 @@ import { StoreUser } from '../models/store.interface';
 })
 export class ChangePasswordModalComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly storeService = inject(StoreService);
+  private readonly storeService = inject(StoreApiService);
   private readonly dialogRef = inject(MatDialogRef<ChangePasswordModalComponent>);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -249,10 +248,19 @@ export class ChangePasswordModalComponent {
   onSubmit(): void {
     if (this.passwordForm.valid) {
       this.isSubmitting = true;
-      const newPassword = this.passwordForm.get('newPassword')?.value;
+      const userId = this.user.user_id || this.user.userId || this.user.id;
+      
+      if (!userId) {
+        this.isSubmitting = false;
+        this.snackBar.open('❌ User ID not found', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
 
-      this.storeService.changeUserPassword(this.user.id, newPassword).subscribe({
-        next: (response) => {
+      this.storeService.resetPassword(userId).subscribe({
+        next: (response: any) => {
           this.isSubmitting = false;
           if (response.success) {
             this.snackBar.open(`✅ ${response.message}`, 'Close', {
@@ -267,7 +275,7 @@ export class ChangePasswordModalComponent {
             });
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.isSubmitting = false;
           console.error('Error changing password:', error);
           this.snackBar.open('❌ Failed to change password. Please try again.', 'Close', {

@@ -79,10 +79,9 @@ export class LoginComponent {
     console.log('Login attempt with credentials:', credentials);
     
     try {
-      // Use the authentication service for login
-      console.log('Calling mockLogin...');
-      const response = await this.authService.mockLogin(credentials); // Use mockLogin for development
-      // await this.authService.login(credentials); // Use this for production with real API
+      // Use the authentication service for login with real API
+      console.log('Calling authentication API...');
+      const response = await this.authService.login(credentials);
       
       console.log('Login successful!', response.message);
       console.log('Navigating to /dashboard...');

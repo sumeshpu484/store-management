@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using StoreApp.Data.Repositories;
+using StoreApp.Services.Auth;
+using StoreApp.Services.Data;
 
 namespace StoreApp.Server
 {
@@ -10,6 +12,11 @@ namespace StoreApp.Server
             // Register repositories
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IStoreRepository, StoreRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            // Register services
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IDataSeedingService, DataSeedingService>();
 
             return services;
         }

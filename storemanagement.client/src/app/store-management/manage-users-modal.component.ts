@@ -12,8 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StoreService } from '../services/store.service';
-import { Store, StoreUser } from '../models/store.interface';
+import { StoreApiService, Store, StoreUser } from '../services/store-api.service';
 import { EditUserModalComponent } from './edit-user-modal.component';
 import { ChangePasswordModalComponent } from './change-password-modal.component';
 import { ConfirmationModalComponent, ConfirmationModalData } from '../shared/confirmation-modal.component';
@@ -478,7 +477,7 @@ import { ConfirmationModalComponent, ConfirmationModalData } from '../shared/con
   `]
 })
 export class ManageUsersModalComponent implements OnInit {
-  private readonly storeService = inject(StoreService);
+  private readonly storeService = inject(StoreApiService);
   private readonly dialogRef = inject(MatDialogRef<ManageUsersModalComponent>);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -510,14 +509,28 @@ export class ManageUsersModalComponent implements OnInit {
   loadUsers(): void {
     this.isLoading.set(true);
     this.storeService.getStoreUsers(this.store.id!).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.isLoading.set(false);
-        if (response.success && response.users) {
-          this.users.set(response.users);
-          this.dataSource.data = response.users;
+        if (response.success && response.data) {
+          // Transform users from API format
+          const users = Array.isArray(response.data) ? response.data.map((user: any) => ({
+            id: user.user_id || user.userId || user.id,
+            username: user.user_name || user.username,
+            email: user.email,
+            firstName: user.first_name || user.firstName || '',
+            lastName: user.last_name || user.lastName || '',
+            role: user.role_name || user.role || 'user',
+            storeId: user.store_id || user.storeId,
+            storeKey: user.store_key || user.storeKey,
+            isActive: user.is_active !== undefined ? user.is_active : user.isActive !== undefined ? user.isActive : true,
+            createdAt: user.created_at ? new Date(user.created_at) : new Date()
+          })) : [];
+          
+          this.users.set(users);
+          this.dataSource.data = users;
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isLoading.set(false);
         console.error('Error loading users:', error);
         this.snackBar.open('❌ Failed to load users', 'Close', {
@@ -562,7 +575,16 @@ export class ManageUsersModalComponent implements OnInit {
   }
 
   toggleUserStatus(user: StoreUser): void {
-    this.storeService.toggleUserStatus(user.id).subscribe({
+    const userId = user.user_id || user.userId || user.id;
+    if (!userId) {
+      this.snackBar.open('❌ User ID not found', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+    
+    this.storeService.toggleUserStatus(userId).subscribe({
       next: (response) => {
         if (response.success) {
           const statusText = user.isActive ? 'deactivated' : 'activated';

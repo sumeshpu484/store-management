@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { AuthInterceptor } from './services/auth.interceptor';
 import { LayoutComponent } from './layout/layout.component';
 
 // Material Design Modules

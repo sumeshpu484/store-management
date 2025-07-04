@@ -14,8 +14,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { StoreService } from '../services/store.service';
-import { Store } from '../models/store.interface';
+import { StoreApiService } from '../services/store-api.service';
+import { Store } from '../services/store-api.service';
 import { CreateStoreModalComponent } from './create-store-modal.component';
 import { EditStoreModalComponent } from './edit-store-modal.component';
 import { StoreDetailsModalComponent } from './store-details-modal.component';
@@ -683,7 +683,7 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
   `]
 })
 export class StoreManagementComponent implements OnInit, AfterViewInit {
-  private readonly storeService = inject(StoreService);
+  private readonly storeService = inject(StoreApiService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -715,14 +715,14 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
   loadStores(): void {
     this.isLoading.set(true);
     this.storeService.getStores().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         this.isLoading.set(false);
         if (response.success && response.stores) {
           this.stores.set(response.stores);
           this.dataSource.data = response.stores;
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isLoading.set(false);
         console.error('Error loading stores:', error);
         this.snackBar.open('❌ Failed to load stores. Please refresh the page.', 'Close', {
@@ -764,7 +764,7 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
 
   toggleStoreStatus(store: Store): void {
     this.storeService.toggleStoreStatus(store.id!).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success) {
           this.snackBar.open(`✅ ${response.message}`, 'Close', {
             duration: 3000,
@@ -778,7 +778,7 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
           });
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error updating store status:', error);
         this.snackBar.open('❌ Failed to update store status. Please try again.', 'Close', {
           duration: 4000,
@@ -804,7 +804,7 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.storeService.deleteStore(store.id!).subscribe({
-          next: (response) => {
+          next: (response: any) => {
             if (response.success) {
               this.snackBar.open(`✅ ${response.message}`, 'Close', {
                 duration: 4000,
@@ -818,7 +818,7 @@ export class StoreManagementComponent implements OnInit, AfterViewInit {
               });
             }
           },
-          error: (error) => {
+          error: (error: any) => {
             console.error('Error deleting store:', error);
             this.snackBar.open('❌ Failed to delete store. Please try again.', 'Close', {
               duration: 4000,

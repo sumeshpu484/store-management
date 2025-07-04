@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, delay, tap } from 'rxjs/operators';
 import { Store, CreateStoreRequest, StoreResponse, StoreUser, CreateUserRequest } from '../models/store.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StoreService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = '/api/stores'; // This would be your actual API endpoint
+  private readonly apiUrl = environment.apiBaseUrl; // Use environment variable
   
   // Mock data for development
   private mockStores: Store[] = [
@@ -169,12 +170,35 @@ export class StoreService {
 
   // Get all stores
   getStores(): Observable<StoreResponse> {
-    // Simulate API call
-    return of({
-      success: true,
-      message: 'Stores retrieved successfully',
-      stores: this.mockStores
-    }).pipe(delay(500)); // Simulate network delay
+    return this.http.get<any>(`${this.apiUrl}/storelist`).pipe(
+      map(response => {
+        // Transform the response from SuperAdminController to match our interface
+        const stores = Array.isArray(response) ? response.map(store => ({
+          id: store.store_id?.toString() || store.storeId?.toString() || '',
+          name: store.store_name || store.storeName || '',
+          address: this.formatAddress(store),
+          email: store.email || '',
+          phone: store.phone || '',
+          storeKey: store.store_key || store.storeKey || this.generateStoreKey(),
+          makerUserId: '',
+          checkerUserId: '',
+          makerUsername: '',
+          checkerUsername: '',
+          createdDate: store.created_at ? new Date(store.created_at) : new Date(),
+          updatedDate: store.updated_at ? new Date(store.updated_at) : new Date(),
+          isActive: store.is_active !== undefined ? store.is_active : true
+        })) : [];
+
+        this.storesSignal.set(stores);
+        
+        return {
+          success: true,
+          message: 'Stores retrieved successfully',
+          stores: stores
+        };
+      }),
+      delay(300) // Small delay for UX
+    );
   }
 
   // Get store by ID
@@ -199,88 +223,48 @@ export class StoreService {
 
   // Create new store
   createStore(storeData: CreateStoreRequest): Observable<StoreResponse> {
-    // Validate store key uniqueness
-    if (this.mockStores.some(s => s.storeKey === storeData.storeKey)) {
-      return of({
-        success: false,
-        message: 'Store key already exists. Please use a different store key (minimum 6 alphanumeric characters).'
-      });
-    }
-
-    // Validate store key format (minimum 6 alphanumeric characters)
-    if (!/^[A-Za-z0-9]{6,}$/.test(storeData.storeKey)) {
-      return of({
-        success: false,
-        message: 'Store key must be at least 6 alphanumeric characters (letters and numbers only).'
-      });
-    }
-
-    // Validate email format
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(storeData.email)) {
-      return of({
-        success: false,
-        message: 'Please enter a valid email address.'
-      });
-    }
-
-    // Validate phone format (Indian standard)
-    if (!/^\+91-[6-9]\d{9}$/.test(storeData.phone)) {
-      return of({
-        success: false,
-        message: 'Phone number must be in Indian format: +91-XXXXXXXXXX (10 digits starting with 6-9).'
-      });
-    }
-
-    // Create the store
-    const newStore: Store = {
-      id: this.generateId(),
-      name: storeData.name,
+    // Prepare request for SuperAdminController
+    const createRequest = {
+      storeName: storeData.name,
       address: storeData.address,
+      city: '', // Extract from address if needed
+      state: '',
+      zipCode: '',
       email: storeData.email,
-      phone: storeData.phone,
-      storeKey: storeData.storeKey.toUpperCase(),
-      makerUserId: `maker_${storeData.storeKey}`,
-      checkerUserId: `checker_${storeData.storeKey}`,
-      makerUsername: `maker_${storeData.storeKey}`,
-      checkerUsername: `checker_${storeData.storeKey}`,
-      createdDate: new Date(),
-      updatedDate: new Date(),
       isActive: true
     };
 
-    // Create default users
-    const makerUser: StoreUser = {
-      id: newStore.makerUserId!,
-      username: newStore.makerUsername!,
-      email: `maker_${storeData.storeKey.toUpperCase()}@store.com`,
-      role: 'maker',
-      storeId: newStore.id!,
-      storeKey: storeData.storeKey.toUpperCase(),
-      isActive: true,
-      createdDate: new Date()
-    };
+    return this.http.post<any>(`${this.apiUrl}/createStore`, createRequest).pipe(
+      map(response => {
+        // Transform response and add to local state
+        const newStore: Store = {
+          id: response.store_id?.toString() || response.storeId?.toString() || this.generateId(),
+          name: response.store_name || response.storeName || storeData.name,
+          address: storeData.address,
+          email: storeData.email,
+          phone: storeData.phone || '',
+          storeKey: storeData.storeKey || this.generateStoreKey(),
+          makerUserId: `maker_${storeData.storeKey}`,
+          checkerUserId: `checker_${storeData.storeKey}`,
+          makerUsername: `maker_${storeData.storeKey}`,
+          checkerUsername: `checker_${storeData.storeKey}`,
+          createdDate: new Date(),
+          updatedDate: new Date(),
+          isActive: true
+        };
 
-    const checkerUser: StoreUser = {
-      id: newStore.checkerUserId!,
-      username: newStore.checkerUsername!,
-      email: `checker_${storeData.storeKey.toUpperCase()}@store.com`,
-      role: 'checker',
-      storeId: newStore.id!,
-      storeKey: storeData.storeKey.toUpperCase(),
-      isActive: true,
-      createdDate: new Date()
-    };
+        // Update local state
+        const currentStores = this.storesSignal();
+        this.storesSignal.set([...currentStores, newStore]);
 
-    this.mockStores.push(newStore);
-    this.updateStoresState();
-
-    return of({
-      success: true,
-      message: 'Store created successfully with default maker and checker users',
-      store: newStore,
-      makerUser: makerUser,
-      checkerUser: checkerUser
-    }).pipe(delay(800));
+        return {
+          success: true,
+          message: 'Store created successfully with default maker and checker users!',
+          store: newStore
+        };
+      }),
+      delay(500)
+    );
   }
 
   // Update store
@@ -370,37 +354,31 @@ export class StoreService {
 
   // Toggle store status
   toggleStoreStatus(id: string): Observable<StoreResponse> {
-    const index = this.mockStores.findIndex(s => s.id === id);
-    
-    if (index === -1) {
-      return of({
-        success: false,
-        message: 'Store not found'
-      });
-    }
+    const blockRequest = {
+      storeId: parseInt(id),
+      isBlocked: true // This will be determined by current status
+    };
 
-    this.mockStores[index].isActive = !this.mockStores[index].isActive;
-    this.mockStores[index].updatedDate = new Date();
-    this.updateStoresState();
+    return this.http.post<any>(`${this.apiUrl}/blockStore`, blockRequest).pipe(
+      map(response => {
+        // Update local state
+        const stores = this.storesSignal();
+        const updatedStores = stores.map(store => 
+          store.id === id 
+            ? { ...store, isActive: !store.isActive, updatedDate: new Date() }
+            : store
+        );
+        this.storesSignal.set(updatedStores);
 
-    return of({
-      success: true,
-      message: `Store "${this.mockStores[index].name}" ${this.mockStores[index].isActive ? 'activated' : 'deactivated'} successfully`,
-      store: this.mockStores[index]
-    }).pipe(delay(300));
-  }
-
-  // Generate random 6-character alphanumeric store key
-  generateStoreKey(): string {
-    let storeKey: string;
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    do {
-      storeKey = '';
-      for (let i = 0; i < 6; i++) {
-        storeKey += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-    } while (this.mockStores.some(s => s.storeKey === storeKey));
-    return storeKey;
+        const updatedStore = updatedStores.find(s => s.id === id);
+        return {
+          success: response.Success || true,
+          message: response.Message || `Store status updated successfully`,
+          store: updatedStore
+        };
+      }),
+      delay(300)
+    );
   }
 
   // Validate store key
@@ -656,5 +634,28 @@ export class StoreService {
 
   private generateId(): string {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+  }
+
+  private formatAddress(store: any): string {
+    const parts = [
+      store.address,
+      store.city,
+      store.state,
+      store.zip_code || store.zipCode
+    ].filter(part => part && part.trim() !== '');
+    
+    return parts.join(', ') || '';
+  }
+
+  private generateStoreKey(): string {
+    let storeKey: string;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    do {
+      storeKey = '';
+      for (let i = 0; i < 6; i++) {
+        storeKey += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+    } while (this.mockStores.some(s => s.storeKey === storeKey));
+    return storeKey;
   }
 }

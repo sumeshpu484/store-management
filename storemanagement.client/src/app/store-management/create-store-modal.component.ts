@@ -9,8 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { StoreService } from '../services/store.service';
-import { CreateStoreRequest } from '../models/store.interface';
+import { StoreApiService, CreateStoreRequest } from '../services/store-api.service';
 
 @Component({
   selector: 'app-create-store-modal',
@@ -238,7 +237,7 @@ import { CreateStoreRequest } from '../models/store.interface';
 export class CreateStoreModalComponent {
   private readonly dialogRef = inject(MatDialogRef<CreateStoreModalComponent>);
   private readonly fb = inject(FormBuilder);
-  private readonly storeService = inject(StoreService);
+  private readonly storeService = inject(StoreApiService);
   private readonly snackBar = inject(MatSnackBar);
 
   isLoading = false;
@@ -275,17 +274,16 @@ export class CreateStoreModalComponent {
     try {
       const formValue = this.storeForm.value;
       const createRequest: CreateStoreRequest = {
-        name: formValue.name!,
+        storeName: formValue.name!,
         address: formValue.address!,
         email: formValue.email!,
-        phone: formValue.phone!,
-        storeKey: formValue.storeKey!.toUpperCase()
+        isActive: true
       };
 
       this.storeService.createStore(createRequest).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           if (response.success) {
-            this.snackBar.open(`✅ Store "${createRequest.name}" created successfully!`, 'Close', {
+            this.snackBar.open(`✅ Store "${createRequest.storeName}" created successfully!`, 'Close', {
               duration: 4000,
               panelClass: ['success-snackbar']
             });
@@ -298,7 +296,7 @@ export class CreateStoreModalComponent {
           }
           this.isLoading = false;
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error creating store:', error);
           this.snackBar.open('❌ Failed to create store. Please try again.', 'Close', {
             duration: 4000,

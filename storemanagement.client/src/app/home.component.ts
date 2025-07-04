@@ -28,7 +28,7 @@ import { AuthService } from './services/auth.service';
             <mat-card-content>
               <p>Angular 20 with Bootstrap and Material Design is working!</p>
               
-              <div class="alert alert-success" role="alert" *ngIf="authService.isAuthenticated()">
+              <div class="alert alert-success" role="alert" *ngIf="authService.isAuthenticated$ | async">
                 <mat-icon>check_circle</mat-icon>
                 You are successfully authenticated!
               </div>
@@ -67,12 +67,12 @@ import { AuthService } from './services/auth.service';
             </mat-card-content>
             
             <mat-card-actions>
-              <button mat-raised-button color="primary" (click)="goToLogin()" *ngIf="!authService.isAuthenticated()">
+              <button mat-raised-button color="primary" (click)="goToLogin()" *ngIf="!(authService.isAuthenticated$ | async)">
                 <mat-icon>login</mat-icon>
                 Go to Login
               </button>
               
-              <button mat-raised-button color="warn" (click)="logout()" *ngIf="authService.isAuthenticated()">
+              <button mat-raised-button color="warn" (click)="logout()" *ngIf="authService.isAuthenticated$ | async">
                 <mat-icon>logout</mat-icon>
                 Logout
               </button>

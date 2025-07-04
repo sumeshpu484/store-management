@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
+using StoreApp.Model.Auth;
+using StoreApp.Services.Auth;
 using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
 
 namespace StoreApp.Server.Controllers
 {
@@ -11,12 +10,12 @@ namespace StoreApp.Server.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
+        private readonly IAuthService _authService;
         private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IConfiguration configuration, ILogger<AuthController> logger)
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
         {
-            _configuration = configuration;
+            _authService = authService;
             _logger = logger;
         }
 
@@ -27,27 +26,18 @@ namespace StoreApp.Server.Controllers
             {
                 _logger.LogInformation("Login attempt for user: {Username}", request.Username);
 
-                // TODO: Replace with actual user validation from database
-                var user = await ValidateUserCredentials(request.Username, request.Password);
-                
-                if (user == null)
+                if (!ModelState.IsValid)
                 {
-                    _logger.LogWarning("Invalid login attempt for user: {Username}", request.Username);
-                    return BadRequest(new { message = "Invalid credentials" });
+                    return BadRequest(ModelState);
                 }
 
-                var token = GenerateJwtToken(user);
-                var refreshToken = GenerateRefreshToken();
+                var response = await _authService.LoginAsync(request);
 
-                var response = new AuthResponse
+                if (!response.Success)
                 {
-                    Success = true,
-                    Token = token,
-                    RefreshToken = refreshToken,
-                    ExpiresIn = 3600, // 1 hour
-                    User = user,
-                    Message = "Login successful"
-                };
+                    _logger.LogWarning("Failed login attempt for user: {Username} - {Message}", request.Username, response.Message);
+                    return BadRequest(new { message = response.Message });
+                }
 
                 _logger.LogInformation("User {Username} logged in successfully", request.Username);
                 return Ok(response);
@@ -60,15 +50,23 @@ namespace StoreApp.Server.Controllers
         }
 
         [HttpPost("refresh")]
-        [Authorize]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
         {
             try
             {
-                // TODO: Implement refresh token validation logic
-                var newToken = GenerateJwtToken(GetUserFromToken());
-                
-                return Ok(new { token = newToken });
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var response = await _authService.RefreshTokenAsync(request.RefreshToken);
+
+                if (!response.Success)
+                {
+                    return BadRequest(new { message = response.Message });
+                }
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -83,7 +81,10 @@ namespace StoreApp.Server.Controllers
         {
             try
             {
-                // TODO: Implement token blacklisting or invalidation
+                var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+                await _authService.LogoutAsync(token);
+
                 _logger.LogInformation("User logged out successfully");
                 return Ok(new { message = "Logged out successfully" });
             }
@@ -94,146 +95,121 @@ namespace StoreApp.Server.Controllers
             }
         }
 
-        private async Task<User?> ValidateUserCredentials(string username, string password)
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            // TODO: Replace with actual database validation
-            // This is mock data for development
-            var mockUsers = new Dictionary<string, User>
+            try
             {
-                ["admin"] = new User
+                if (!ModelState.IsValid)
                 {
-                    Id = "1",
-                    Username = "admin",
-                    Email = "admin@storemanagement.com",
-                    Role = "admin",
-                    FirstName = "System",
-                    LastName = "Administrator",
-                    Avatar = "https://ui-avatars.com/api/?name=System+Administrator&background=673ab7&color=fff",
-                    Permissions = new[] { "users.read", "users.write", "products.read", "products.write", "orders.read", "orders.write", "reports.read", "settings.write" },
-                    Department = "IT Administration"
-                },
-                ["manager"] = new User
-                {
-                    Id = "2",
-                    Username = "manager",
-                    Email = "manager@storemanagement.com",
-                    Role = "manager",
-                    FirstName = "Store",
-                    LastName = "Manager",
-                    Avatar = "https://ui-avatars.com/api/?name=Store+Manager&background=2196f3&color=fff",
-                    Permissions = new[] { "products.read", "products.write", "orders.read", "orders.write", "reports.read" },
-                    Department = "Store Operations"
+                    return BadRequest(ModelState);
                 }
-            };
 
-            if (mockUsers.TryGetValue(username.ToLower(), out var user))
-            {
-                // In production, use proper password hashing (BCrypt, Argon2, etc.)
-                var validPasswords = new Dictionary<string, string>
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!Guid.TryParse(userIdClaim, out var userId))
                 {
-                    ["admin"] = "admin",
-                    ["manager"] = "manager"
-                };
-
-                if (validPasswords.TryGetValue(username.ToLower(), out var validPassword) && 
-                    password == validPassword)
-                {
-                    return user;
+                    return BadRequest(new { message = "Invalid user ID" });
                 }
+
+                var success = await _authService.ChangePasswordAsync(userId, request);
+
+                if (!success)
+                {
+                    return BadRequest(new { message = "Failed to change password. Please check your current password." });
+                }
+
+                _logger.LogInformation("Password changed successfully for user: {UserId}", userId);
+                return Ok(new { message = "Password changed successfully" });
             }
-
-            return null;
-        }
-
-        private string GenerateJwtToken(User user)
-        {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings["SecretKey"] ?? "your-super-secret-key-here-make-it-long-and-complex";
-            var issuer = jwtSettings["Issuer"] ?? "StoreManagement";
-            var audience = jwtSettings["Audience"] ?? "StoreManagement";
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
+            catch (Exception ex)
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim("firstName", user.FirstName),
-                new Claim("lastName", user.LastName),
-                new Claim("department", user.Department),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+                _logger.LogError(ex, "Error during password change");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
         }
 
-        private string GenerateRefreshToken()
+        [HttpPost("reset-password")]
+        [Authorize] // In production, this might require admin role
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
-            return Guid.NewGuid().ToString();
-        }
-
-        private User GetUserFromToken()
-        {
-            // TODO: Extract user information from the current token
-            return new User
+            try
             {
-                Id = "1",
-                Username = "admin",
-                Email = "admin@storemanagement.com",
-                Role = "admin",
-                FirstName = "System",
-                LastName = "Administrator",
-                Avatar = "https://ui-avatars.com/api/?name=System+Administrator&background=673ab7&color=fff",
-                Permissions = new[] { "users.read", "users.write", "products.read", "products.write", "orders.read", "orders.write", "reports.read", "settings.write" },
-                Department = "IT Administration"
-            };
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var success = await _authService.ResetPasswordAsync(request);
+
+                if (!success)
+                {
+                    return BadRequest(new { message = "Failed to reset password. User not found." });
+                }
+
+                _logger.LogInformation("Password reset successfully for user: {UserId}", request.UserId);
+                return Ok(new { message = "Password reset successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during password reset");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
         }
-    }
 
-    // DTOs for API communication
-    public class LoginRequest
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public bool RememberMe { get; set; }
-    }
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!Guid.TryParse(userIdClaim, out var userId))
+                {
+                    return BadRequest(new { message = "Invalid user ID" });
+                }
 
-    public class RefreshTokenRequest
-    {
-        public string RefreshToken { get; set; } = string.Empty;
-    }
+                var userProfile = await _authService.GetUserProfileAsync(userId);
 
-    public class AuthResponse
-    {
-        public bool Success { get; set; }
-        public string Token { get; set; } = string.Empty;
-        public string RefreshToken { get; set; } = string.Empty;
-        public int ExpiresIn { get; set; }
-        public User User { get; set; } = new();
-        public string Message { get; set; } = string.Empty;
-    }
+                if (userProfile == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
 
-    public class User
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Avatar { get; set; } = string.Empty;
-        public string[] Permissions { get; set; } = Array.Empty<string>();
-        public string Department { get; set; } = string.Empty;
+                return Ok(userProfile);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user profile");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpGet("validate")]
+        [Authorize]
+        public IActionResult ValidateToken()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var usernameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
+                var emailClaim = User.FindFirst(ClaimTypes.Email)?.Value;
+                var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                return Ok(new
+                {
+                    valid = true,
+                    userId = userIdClaim,
+                    username = usernameClaim,
+                    email = emailClaim,
+                    role = roleClaim
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating token");
+                return Unauthorized(new { message = "Invalid token" });
+            }
+        }
     }
 }

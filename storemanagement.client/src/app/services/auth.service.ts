@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, throwError, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, firstValueFrom, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface LoginCredentials {
   username: string;
@@ -48,14 +49,20 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   
-  private readonly apiUrl = 'https://localhost:5001/api/auth'; // .NET Core backend API URL
-  private readonly useMockData = true; // Set to false when .NET Core API is ready
+  private readonly apiUrl = environment.authApiUrl; // Use auth API URL from environment
+  private readonly useMockData = false; // Set to true for development without backend
+  private readonly bypassAuthForDevelopment = false; // Set to true to bypass auth entirely
   private readonly tokenKey = 'auth_token';
   private readonly userKey = 'auth_user';
+  private readonly refreshTokenKey = 'refresh_token';
   
   // Subject to track authentication state
-  private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
-  private readonly currentUserSubject = new BehaviorSubject<User | null>(this.getCurrentUser());
+  private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(
+    this.bypassAuthForDevelopment || this.hasValidToken()
+  );
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(
+    this.bypassAuthForDevelopment ? this.getMockUser() : this.getCurrentUser()
+  );
 
   // Public observables
   readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -67,8 +74,7 @@ export class AuthService {
   }
 
   /**
-   * Authenticate user with credentials
-   * Automatically chooses between mock data and real API based on useMockData flag
+   * Authenticate user with credentials using the .NET Core API
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     if (this.useMockData) {
@@ -76,25 +82,41 @@ export class AuthService {
     }
 
     try {
-      const response = await this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
-        .pipe(
-          tap((authResponse: AuthResponse) => {
-            this.storeAuthData(authResponse, credentials.rememberMe);
-            this.isAuthenticatedSubject.next(true);
-            this.currentUserSubject.next(authResponse.user);
-          }),
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${this.apiUrl}/login`, {
+          username: credentials.username,
+          password: credentials.password,
+          rememberMe: credentials.rememberMe
+        }).pipe(
           catchError(this.handleAuthError)
         )
-        .toPromise();
+      );
 
-      if (!response) {
-        throw new Error('Login failed: No response received');
+      if (!response || !response.success) {
+        throw new Error(response?.message || 'Login failed');
       }
+
+      // Store authentication data
+      this.storeAuthData(response, credentials.rememberMe);
+      this.isAuthenticatedSubject.next(true);
+      this.currentUserSubject.next(response.user);
 
       return response;
     } catch (error) {
       console.error('Login error:', error);
-      throw error;
+      
+      // Enhanced error handling
+      if (error instanceof HttpErrorResponse) {
+        if (error.status === 400) {
+          throw new Error(error.error?.message || 'Invalid credentials');
+        } else if (error.status === 500) {
+          throw new Error('Server error. Please try again later.');
+        } else if (error.status === 0) {
+          throw new Error('Unable to connect to server. Please check your connection.');
+        }
+      }
+      
+      throw error instanceof Error ? error : new Error('Login failed');
     }
   }
 
@@ -172,8 +194,18 @@ export class AuthService {
    */
   async logout(): Promise<void> {
     try {
-      // Call logout endpoint if available
-      // await this.http.post(`${this.apiUrl}/logout`, {}).toPromise();
+      // Call logout API if token exists
+      const token = this.getToken();
+      if (token && !this.useMockData) {
+        await firstValueFrom(
+          this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+            catchError(error => {
+              console.warn('Logout API call failed:', error);
+              return of(null); // Continue with local logout even if API fails
+            })
+          )
+        );
+      }
     } catch (error) {
       console.warn('Logout API call failed:', error);
     } finally {
@@ -185,50 +217,160 @@ export class AuthService {
   }
 
   /**
-   * Check if user is currently authenticated
+   * Change user password
    */
-  isAuthenticated(): boolean {
-    return this.hasValidToken();
-  }
+  async changePassword(currentPassword: string, newPassword: string, confirmPassword: string): Promise<void> {
+    if (this.useMockData) {
+      // Mock implementation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (currentPassword !== 'current123') {
+        throw new Error('Current password is incorrect');
+      }
+      if (newPassword !== confirmPassword) {
+        throw new Error('New passwords do not match');
+      }
+      return;
+    }
 
-  /**
-   * Get current user information
-   */
-  getCurrentUser(): User | null {
     try {
-      const userData = localStorage.getItem(this.userKey) || sessionStorage.getItem(this.userKey);
-      return userData ? JSON.parse(userData) : null;
-    } catch {
-      return null;
+      const response = await firstValueFrom(
+        this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, {
+          currentPassword,
+          newPassword,
+          confirmPassword
+        }).pipe(
+          catchError(this.handleAuthError)
+        )
+      );
+
+      if (!response) {
+        throw new Error('Password change failed');
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
+      throw error instanceof Error ? error : new Error('Failed to change password');
     }
   }
 
   /**
-   * Get stored authentication token
+   * Get current user profile
    */
-  getToken(): string | null {
-    return localStorage.getItem(this.tokenKey) || sessionStorage.getItem(this.tokenKey);
+  async getUserProfile(): Promise<User> {
+    if (this.useMockData) {
+      const currentUser = this.currentUserSubject.value;
+      if (!currentUser) {
+        throw new Error('No user logged in');
+      }
+      return currentUser;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<User>(`${this.apiUrl}/profile`).pipe(
+          catchError(this.handleAuthError)
+        )
+      );
+
+      if (!response) {
+        throw new Error('Failed to get user profile');
+      }
+
+      // Update current user subject
+      this.currentUserSubject.next(response);
+      return response;
+    } catch (error) {
+      console.error('Get profile error:', error);
+      throw error instanceof Error ? error : new Error('Failed to get user profile');
+    }
+  }
+
+  /**
+   * Validate current token with server
+   */
+  async validateToken(): Promise<boolean> {
+    if (this.useMockData || this.bypassAuthForDevelopment) {
+      return true;
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.http.get<any>(`${this.apiUrl}/validate`).pipe(
+          catchError(error => {
+            console.warn('Token validation failed:', error);
+            return of(null);
+          })
+        )
+      );
+
+      return response?.valid === true;
+    } catch (error) {
+      console.warn('Token validation error:', error);
+      return false;
+    }
   }
 
   /**
    * Refresh authentication token
    */
   async refreshToken(): Promise<string> {
-    try {
-      const response = await this.http.post<{ token: string }>(`${this.apiUrl}/refresh`, {})
-        .pipe(catchError(this.handleAuthError))
-        .toPromise();
+    if (this.useMockData) {
+      // For mock data, just generate a new token
+      const mockToken = `mock-token-${Date.now()}`;
+      this.storeToken(mockToken);
+      return mockToken;
+    }
 
-      if (response?.token) {
-        this.storeToken(response.token);
+    try {
+      const refreshToken = this.getRefreshToken();
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await firstValueFrom(
+        this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, {
+          refreshToken: refreshToken
+        }).pipe(
+          catchError(this.handleAuthError)
+        )
+      );
+
+      if (response?.success && response.token) {
+        // Store new tokens
+        this.storeAuthData(response, true); // Assume remember me for refresh
+        this.currentUserSubject.next(response.user);
         return response.token;
       }
 
       throw new Error('Token refresh failed');
     } catch (error) {
+      console.error('Token refresh error:', error);
       await this.logout();
       throw error;
     }
+  }
+
+  /**
+   * Get authorization header for API calls
+   */
+  getAuthHeaders(): { [header: string]: string } {
+    const token = this.getToken();
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+
+  /**
+   * Check if user has specific permission
+   */
+  hasPermission(permission: string): boolean {
+    const user = this.currentUserSubject.value;
+    return user?.permissions?.includes(permission) || false;
+  }
+
+  /**
+   * Check if user has specific role
+   */
+  hasRole(role: string): boolean {
+    const user = this.currentUserSubject.value;
+    return user?.role === role;
   }
 
   /**
@@ -240,7 +382,11 @@ export class AuthService {
     
     storage.setItem(this.tokenKey, authResponse.token);
     storage.setItem(this.userKey, JSON.stringify(authResponse.user));
-    storage.setItem(`${this.tokenKey}_refresh`, authResponse.refreshToken);
+    
+    // Store refresh token if available
+    if (authResponse.refreshToken) {
+      storage.setItem(this.refreshTokenKey, authResponse.refreshToken);
+    }
     
     // Set token expiration
     const expirationTime = Date.now() + (authResponse.expiresIn * 1000);
@@ -256,6 +402,14 @@ export class AuthService {
   }
 
   /**
+   * Get refresh token from storage
+   */
+  private getRefreshToken(): string | null {
+    return localStorage.getItem(this.refreshTokenKey) || 
+           sessionStorage.getItem(this.refreshTokenKey);
+  }
+
+  /**
    * Clear all stored authentication data
    */
   private clearAuthData(): void {
@@ -263,8 +417,30 @@ export class AuthService {
       storage.removeItem(this.tokenKey);
       storage.removeItem(this.userKey);
       storage.removeItem(`${this.tokenKey}_expiry`);
-      storage.removeItem(`${this.tokenKey}_refresh`);
+      storage.removeItem(this.refreshTokenKey);
     });
+  }
+
+  /**
+   * Get stored authentication token
+   */
+  public getToken(): string | null {
+    return localStorage.getItem(this.tokenKey) || 
+           sessionStorage.getItem(this.tokenKey);
+  }
+
+  /**
+   * Get current user from storage
+   */
+  private getCurrentUser(): User | null {
+    try {
+      const userJson = localStorage.getItem(this.userKey) || 
+                      sessionStorage.getItem(this.userKey);
+      return userJson ? JSON.parse(userJson) : null;
+    } catch (error) {
+      console.warn('Error parsing stored user data:', error);
+      return null;
+    }
   }
 
   /**
@@ -274,12 +450,29 @@ export class AuthService {
     const token = this.getToken();
     if (!token) return false;
 
-    const expirationTime = localStorage.getItem(`${this.tokenKey}_expiry`) || 
-                          sessionStorage.getItem(`${this.tokenKey}_expiry`);
+    const expiryTime = localStorage.getItem(`${this.tokenKey}_expiry`) || 
+                      sessionStorage.getItem(`${this.tokenKey}_expiry`);
     
-    if (!expirationTime) return false;
+    if (!expiryTime) return true; // Assume valid if no expiry set
 
-    return Date.now() < parseInt(expirationTime);
+    return Date.now() < parseInt(expiryTime, 10);
+  }
+
+  /**
+   * Get mock user for development
+   */
+  private getMockUser(): User {
+    return {
+      id: 'mock-1',
+      username: 'admin',
+      email: 'admin@storemanagement.com',
+      role: 'admin',
+      firstName: 'System',
+      lastName: 'Administrator',
+      avatar: 'https://ui-avatars.com/api/?name=System+Administrator&background=673ab7&color=fff',
+      permissions: ['users.read', 'users.write', 'products.read', 'products.write', 'orders.read', 'orders.write', 'reports.read', 'settings.write'],
+      department: 'IT Administration'
+    };
   }
 
   /**
