@@ -14,7 +14,6 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, filter } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 
 export interface NavigationItem {
   label: string;
@@ -41,14 +40,6 @@ export interface NavigationItem {
     MatDividerModule,
     MatBadgeModule,
     MatTooltipModule
-  ],
-  animations: [
-    trigger('slideInOut', [
-      state('in', style({height: '*', opacity: 1})),
-      state('out', style({height: '0px', opacity: 0})),
-      transition('in => out', animate('300ms ease-in-out')),
-      transition('out => in', animate('300ms ease-in-out'))
-    ])
   ],
   template: `
     <mat-sidenav-container class="sidenav-container" autosize>
@@ -87,16 +78,11 @@ export interface NavigationItem {
             
             <!-- Menu Item with Children -->
             <div *ngIf="item.children && item.children.length > 0" class="nav-group">
-              <div class="nav-group-header" 
-                   (click)="onMenuItemClick(item, $event)"
-                   [class.expanded]="isGroupExpanded(item)">
+              <div class="nav-group-header">
                 <mat-icon>{{ item.icon }}</mat-icon>
                 <span>{{ item.label }}</span>
-                <mat-icon class="expand-icon">{{ isGroupExpanded(item) ? 'expand_less' : 'expand_more' }}</mat-icon>
               </div>
-              <div class="nav-group-items" 
-                   [class.expanded]="isGroupExpanded(item)"
-                   [@slideInOut]="isGroupExpanded(item) ? 'in' : 'out'">
+              <div class="nav-group-items">
                 <a mat-list-item 
                    *ngFor="let child of item.children"
                    [routerLink]="child.route"
@@ -105,12 +91,12 @@ export interface NavigationItem {
                    matTooltipPosition="right">
                   <mat-icon matListItemIcon>{{ child.icon }}</mat-icon>
                   <span matListItemTitle>{{ child.label }}</span>
-                  <!-- <span matListItemLine *ngIf="child.badge" 
+                  <span matListItemLine *ngIf="child.badge" 
                         class="badge"
                         [matBadge]="child.badge" 
                         matBadgeColor="warn" 
                         matBadgeSize="small">
-                  </span> -->
+                  </span>
                 </a>
               </div>
             </div>
@@ -196,7 +182,7 @@ export interface NavigationItem {
 
         <!-- Page Content -->
         <div class="main-content">
-          <router-outlet></router-outlet>
+          <ng-content></ng-content>
         </div>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -210,7 +196,6 @@ export class LayoutComponent implements OnInit {
 
   currentPageTitle = 'Dashboard';
   readonly currentUser$ = this.authService.currentUser$;
-  expandedGroups: Set<string> = new Set();
 
   readonly isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
@@ -225,12 +210,11 @@ export class LayoutComponent implements OnInit {
       route: '/dashboard'
     },
     {
-      label: 'Store Management',
-      icon: 'store',
-      children: [
-        { label: 'Stores', icon: 'store', route: '/stores' }
-      ]
+      label: 'Home',
+      icon: 'home',
+      route: '/home'
     },
+    { divider: true, label: '', icon: '' },
     {
       label: 'Inventory',
       icon: 'inventory',
@@ -240,6 +224,46 @@ export class LayoutComponent implements OnInit {
         { label: 'Stock', icon: 'inventory_2', route: '/stock', badge: 5 },
         { label: 'Suppliers', icon: 'local_shipping', route: '/suppliers' }
       ]
+    },
+    {
+      label: 'Sales',
+      icon: 'point_of_sale',
+      children: [
+        { label: 'POS System', icon: 'payment', route: '/pos' },
+        { label: 'Orders', icon: 'receipt_long', route: '/orders', badge: 12 },
+        { label: 'Customers', icon: 'people', route: '/customers' },
+        { label: 'Discounts', icon: 'local_offer', route: '/discounts' }
+      ]
+    },
+    {
+      label: 'Reports',
+      icon: 'analytics',
+      children: [
+        { label: 'Sales Reports', icon: 'trending_up', route: '/reports/sales' },
+        { label: 'Inventory Reports', icon: 'assessment', route: '/reports/inventory' },
+        { label: 'Financial Reports', icon: 'account_balance', route: '/reports/financial' }
+      ]
+    },
+    { divider: true, label: '', icon: '' },
+    {
+      label: 'Administration',
+      icon: 'admin_panel_settings',
+      children: [
+        { label: 'Users', icon: 'people_outline', route: '/users' },
+        { label: 'Roles', icon: 'security', route: '/roles' },
+        { label: 'Settings', icon: 'settings', route: '/settings' }
+      ]
+    },
+    {
+      label: 'Test Page',
+      icon: 'science',
+      route: '/test'
+    },
+    { divider: true, label: '', icon: '' },
+    {
+      label: 'Help & Support',
+      icon: 'help',
+      route: '/help'
     }
   ];
 
@@ -248,50 +272,29 @@ export class LayoutComponent implements OnInit {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event) => {
         this.updatePageTitle((event as NavigationEnd).url);
-        // Removed auto-expansion - submenus now only toggle on click
       });
-
-    // Initialize page title based on current route
-    this.updatePageTitle(this.router.url);
   }
-
-  toggleGroup(groupLabel: string): void {
-    if (this.expandedGroups.has(groupLabel)) {
-      this.expandedGroups.delete(groupLabel);
-    } else {
-      this.expandedGroups.add(groupLabel);
-    }
-  }
-
-  onMenuItemClick(item: NavigationItem, event?: Event): void {
-    // If the item has children, toggle the submenu instead of navigating
-    if (item.children && item.children.length > 0) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      this.toggleGroup(item.label);
-    }
-    // If no children, let the routerLink handle navigation
-  }
-
-  isGroupExpanded(item: NavigationItem): boolean {
-    return this.expandedGroups.has(item.label);
-  }
-
-  // Removed autoExpandGroups method - submenus now only toggle manually
 
   private updatePageTitle(url: string): void {
     const titles: { [key: string]: string } = {
       '/dashboard': 'Dashboard',
-      '/stores': 'Store Management',
-      '/store-items': 'Store Items',
-      '/store-categories': 'Store Categories',
-      '/store-settings': 'Store Settings',
+      '/home': 'Home',
       '/products': 'Products',
       '/categories': 'Categories',
       '/stock': 'Stock Management',
       '/suppliers': 'Suppliers',
+      '/pos': 'Point of Sale',
+      '/orders': 'Orders',
+      '/customers': 'Customers',
+      '/discounts': 'Discounts',
+      '/reports/sales': 'Sales Reports',
+      '/reports/inventory': 'Inventory Reports',
+      '/reports/financial': 'Financial Reports',
+      '/users': 'User Management',
+      '/roles': 'Role Management',
+      '/settings': 'Settings',
+      '/test': 'Test Page',
+      '/help': 'Help & Support',
       '/login': 'Login'
     };
 

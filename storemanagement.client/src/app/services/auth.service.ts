@@ -48,7 +48,8 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   
-  private readonly apiUrl = '/api/auth'; // Update with your actual API URL
+  private readonly apiUrl = 'https://localhost:5001/api/auth'; // .NET Core backend API URL
+  private readonly useMockData = true; // Set to false when .NET Core API is ready
   private readonly tokenKey = 'auth_token';
   private readonly userKey = 'auth_user';
   
@@ -67,13 +68,18 @@ export class AuthService {
 
   /**
    * Authenticate user with credentials
+   * Automatically chooses between mock data and real API based on useMockData flag
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    if (this.useMockData) {
+      return this.mockLogin(credentials);
+    }
+
     try {
       const response = await this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
         .pipe(
-          tap(authResponse => {
-            this.storeAuthData(authResponse);
+          tap((authResponse: AuthResponse) => {
+            this.storeAuthData(authResponse, credentials.rememberMe);
             this.isAuthenticatedSubject.next(true);
             this.currentUserSubject.next(authResponse.user);
           }),

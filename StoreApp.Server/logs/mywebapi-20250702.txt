@@ -468,3 +468,39 @@ POSITION: 118
 2025-07-02 00:20:14.291 +05:30 [INF] Executed action StoreApp.Server.Controllers.SuperAdminController.ListStores (StoreApp.Server) in 1601.8902ms
 2025-07-02 00:20:14.293 +05:30 [INF] Executed endpoint 'StoreApp.Server.Controllers.SuperAdminController.ListStores (StoreApp.Server)'
 2025-07-02 00:20:14.294 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/superadmin/storelist - 200 null application/json; charset=utf-8 1631.1301ms
+2025-07-02 01:41:09.620 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-07-02 01:41:09.731 +05:30 [INF] User profile is available. Using 'C:\Users\anjal\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-07-02 01:41:10.019 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-07-02 01:41:10.191 +05:30 [INF] Now listening on: https://localhost:7071
+2025-07-02 01:41:10.193 +05:30 [INF] Now listening on: http://localhost:5121
+2025-07-02 01:41:10.196 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-07-02 01:41:10.198 +05:30 [INF] Hosting environment: Development
+2025-07-02 01:41:10.200 +05:30 [INF] Content root path: D:\sumesh\project\store\Repository\store-management\StoreApp.Server
+2025-07-02 01:41:12.218 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/index.html - null null
+2025-07-02 01:41:12.702 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/index.html - 200 null text/html;charset=utf-8 513.3232ms
+2025-07-02 01:41:13.601 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - null null
+2025-07-02 01:41:13.601 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_vs/browserLink - null null
+2025-07-02 01:41:13.661 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - 200 16515 application/javascript; charset=utf-8 56.2531ms
+2025-07-02 01:41:13.749 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_vs/browserLink - 200 null text/javascript; charset=UTF-8 148.4033ms
+2025-07-02 01:41:13.900 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - null null
+2025-07-02 01:41:14.091 +05:30 [INF] No SPA development server running at https://localhost:49805 found.
+2025-07-02 01:41:14.205 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 304.5365ms
+2025-07-02 01:41:19.750 +05:30 [ERR] Couldn't start the SPA development server with command 'npm start'.
+2025-07-02 10:44:35.436 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-07-02 10:44:35.576 +05:30 [INF] User profile is available. Using 'C:\Users\anjal\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-07-02 10:44:35.862 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
+2025-07-02 10:44:35.992 +05:30 [INF] Now listening on: https://localhost:7071
+2025-07-02 10:44:35.994 +05:30 [INF] Now listening on: http://localhost:5121
+2025-07-02 10:44:35.997 +05:30 [INF] Application started. Press Ctrl+C to shut down.
+2025-07-02 10:44:35.999 +05:30 [INF] Hosting environment: Development
+2025-07-02 10:44:36.000 +05:30 [INF] Content root path: D:\sumesh\project\store\Repository\store-management\StoreApp.Server
+2025-07-02 10:44:37.618 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/index.html - null null
+2025-07-02 10:44:38.128 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - null null
+2025-07-02 10:44:38.160 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/index.html - 200 null text/html;charset=utf-8 553.9749ms
+2025-07-02 10:44:38.140 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/_vs/browserLink - null null
+2025-07-02 10:44:38.173 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_framework/aspnetcore-browser-refresh.js - 200 16515 application/javascript; charset=utf-8 47.1766ms
+2025-07-02 10:44:38.282 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/_vs/browserLink - 200 null text/javascript; charset=UTF-8 142.5245ms
+2025-07-02 10:44:38.385 +05:30 [INF] Request starting HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - null null
+2025-07-02 10:44:38.568 +05:30 [INF] Request finished HTTP/2 GET https://localhost:7071/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 184.0978ms
+2025-07-02 10:44:39.932 +05:30 [INF] No SPA development server running at https://localhost:49805 found.
+2025-07-02 10:44:45.180 +05:30 [ERR] Couldn't start the SPA development server with command 'npm start'.

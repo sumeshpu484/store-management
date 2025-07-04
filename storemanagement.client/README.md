@@ -1,27 +1,113 @@
-# StoremanagementClient
+# Store Management System - Angular Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.4.
+A modern Angular 17 frontend for the Store Management System, integrated with .NET Core backend.
 
-## Development server
+## Project Overview
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+This Angular application provides a comprehensive user interface for store management operations, featuring:
+- **Authentication & Authorization** with JWT tokens
+- **Responsive Sidebar Navigation** with Material Design
+- **Dashboard** with key metrics and insights
+- **Inventory Management** for products, categories, and stock
+- **Sales Management** including POS system and orders
+- **User Management** and role-based access control
 
-## Code scaffolding
+## Technology Stack
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- **Angular 17** with standalone components
+- **Angular Material** for UI components
+- **Bootstrap 5.3** for responsive layout
+- **TypeScript** for type safety
+- **RxJS** for reactive programming
+- **JWT Authentication** with automatic token refresh
 
-## Build
+## Quick Start
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn package manager
 
-## Running unit tests
+### Installation & Development
+1. Navigate to the frontend directory:
+   ```bash
+   cd storemanagement.client
+   ```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Running end-to-end tests
+3. Start development server:
+   ```bash
+   npm start
+   ```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+4. Open browser to: `https://localhost:4200`
 
-## Further help
+## Default Login Credentials
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+For development/testing:
+- **Username:** admin | **Password:** admin | **Role:** Administrator
+- **Username:** manager | **Password:** manager | **Role:** Manager
+
+## Development Features
+
+- **Hot Reload** - Automatic refresh on code changes
+- **Proxy Configuration** - API calls routed to .NET Core backend
+- **Mock Data Support** - Develop without backend dependency
+- **SSL/HTTPS** - Secure development environment
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── layout/              # Main layout with sidebar navigation
+│   ├── services/            # Business logic and API services
+│   ├── guards/              # Route protection
+│   ├── interceptors/        # HTTP request/response handling
+│   ├── components/          # Reusable UI components
+│   └── assets/              # Static files and mock data
+```
+
+## Configuration
+
+### Environment Setup
+- Update API endpoints in `auth.service.ts`
+- Configure proxy settings in `proxy.conf.json`
+- Set mock data flag: `useMockData = true/false`
+
+### Backend Integration
+- Ensure .NET Core backend is running on `https://localhost:5001`
+- API calls are automatically proxied during development
+- JWT tokens are managed automatically
+
+## Build & Deployment
+
+```bash
+# Development build
+ng build
+
+# Production build
+ng build --configuration production
+```
+
+## Available Scripts
+
+- `npm start` - Start development server with SSL
+- `npm run build` - Build for production
+- `npm test` - Run unit tests
+- `npm run watch` - Build in watch mode
+
+## Backend Integration
+
+This frontend is designed to work with the .NET Core backend in the parent directory. The system uses:
+- JWT authentication
+- RESTful API endpoints
+- Automatic token refresh
+- Protected routes
+
+---
+
+Generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.8 and upgraded to Angular 17.
