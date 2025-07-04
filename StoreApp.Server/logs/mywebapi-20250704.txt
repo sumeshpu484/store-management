@@ -1,9 +1,0 @@
-2025-07-04 19:54:26.882 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
-2025-07-04 19:54:26.982 +05:30 [INF] User profile is available. Using 'C:\Users\anjal\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
-2025-07-04 19:54:27.220 +05:30 [WRN] The WebRootPath was not found: D:\sumesh\project\store\Repository\store-management\StoreApp.Server\wwwroot. Static files may be unavailable.
-2025-07-04 19:54:27.267 +05:30 [INF] Now listening on: http://localhost:5121
-2025-07-04 19:54:27.279 +05:30 [INF] Application started. Press Ctrl+C to shut down.
-2025-07-04 19:54:27.292 +05:30 [INF] Hosting environment: Development
-2025-07-04 19:54:27.295 +05:30 [INF] Content root path: D:\sumesh\project\store\Repository\store-management\StoreApp.Server
-2025-07-04 19:54:31.270 +05:30 [INF] No SPA development server running at https://localhost:49805 found.
-2025-07-04 19:56:33.022 +05:30 [ERR] Unable to connect to the SPA development server at 'https://localhost:49805'.

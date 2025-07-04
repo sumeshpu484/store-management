@@ -68,6 +68,11 @@ dlldata.c
 *.svclog
 *.scc
 
+# Logs folder and files
+logs/
+logs/**/*
+*.log
+
 # Chutzpah Test files
 _Chutzpah*
 
