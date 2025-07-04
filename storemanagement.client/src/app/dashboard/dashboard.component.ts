@@ -233,19 +233,43 @@ import { AuthService } from '../services/auth.service';
     .action-buttons button[color="primary"] {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border: none;
-      color: white;
+      color: white !important;
+      
+      mat-icon {
+        color: white !important;
+      }
+      
+      span {
+        color: white !important;
+      }
     }
 
     .action-buttons button[color="accent"] {
       background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
       border: none;
-      color: white;
+      color: white !important;
+      
+      mat-icon {
+        color: white !important;
+      }
+      
+      span {
+        color: white !important;
+      }
     }
 
     .action-buttons button:not([color]) {
       background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       border: none;
-      color: white;
+      color: white !important;
+      
+      mat-icon {
+        color: white !important;
+      }
+      
+      span {
+        color: white !important;
+      }
     }
 
     .activity-list {

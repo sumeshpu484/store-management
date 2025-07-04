@@ -376,3 +376,87 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 2rem;
   }
 }
+
+// Dashboard Quick Actions - White icons and text (only for dashboard)
+.dashboard-container .action-buttons button {
+  color: white !important;
+  
+  mat-icon {
+    color: white !important;
+  }
+  
+  span {
+    color: white !important;
+  }
+  
+  // Ensure button text is white regardless of Material theme
+  .mat-mdc-button-label {
+    color: white !important;
+  }
+  
+  // Override Material icon colors
+  .mat-icon {
+    color: white !important;
+  }
+}
+
+// Dashboard Quick Actions - Specific button targeting
+button[mat-raised-button] {
+  &.mat-primary,
+  &.mat-accent,
+  &:not([color]) {
+    .mat-icon {
+      color: white !important;
+    }
+    
+    .mat-mdc-button-label {
+      color: white !important;
+    }
+    
+    span {
+      color: white !important;
+    }
+  }
+}
+
+// Table Action Buttons - Ensure icons are visible with proper colors
+.table-container .action-buttons button[color="primary"] mat-icon,
+.mat-mdc-table .action-buttons button[color="primary"] mat-icon {
+  color: #1976d2 !important;
+}
+
+.table-container .action-buttons button[color="accent"] mat-icon,
+.mat-mdc-table .action-buttons button[color="accent"] mat-icon {
+  color: #f57c00 !important;
+}
+
+.table-container .action-buttons button[color="warn"] mat-icon,
+.mat-mdc-table .action-buttons button[color="warn"] mat-icon {
+  color: #d32f2f !important;
+}
+
+.table-container .action-buttons button:not([color]) mat-icon,
+.mat-mdc-table .action-buttons button:not([color]) mat-icon {
+  color: #424242 !important;
+}
+
+// Ensure all table action buttons have proper hover effects
+.table-container .action-buttons button:hover,
+.mat-mdc-table .action-buttons button:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.table-container .action-buttons button[color="primary"]:hover,
+.mat-mdc-table .action-buttons button[color="primary"]:hover {
+  background-color: rgba(25, 118, 210, 0.1) !important;
+}
+
+.table-container .action-buttons button[color="accent"]:hover,
+.mat-mdc-table .action-buttons button[color="accent"]:hover {
+  background-color: rgba(245, 124, 0, 0.1) !important;
+}
+
+.table-container .action-buttons button[color="warn"]:hover,
+.mat-mdc-table .action-buttons button[color="warn"]:hover {
+  background-color: rgba(211, 47, 47, 0.1) !important;
+}
