@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StoreApp.Model.Store;
 
-public class CreateStoreRequest
+public class StoreRequest
 {
     [Required]
     [StringLength(255)]
@@ -28,7 +28,21 @@ public class CreateStoreRequest
     [EmailAddress]
     [StringLength(255)]
     public string StoreEmail { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(20)]
+    public string Phone { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(50)]
+    public string StoreKey { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; } = true;
 }
+
+// Aliases for backward compatibility and clarity
+public class CreateStoreRequest : StoreRequest { }
+public class UpdateStoreRequest : StoreRequest { }
 
 public class CreateStoreResponse
 {
@@ -50,8 +64,11 @@ public class StoreListItem
     public string State { get; set; } = string.Empty;
     public string ZipCode { get; set; } = string.Empty;
     public string StoreEmail { get; set; } = string.Empty;
+    public string Phone { get; set; } = string.Empty;
+    public string StoreKey { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public class CreateStoreUserRequest
@@ -89,29 +106,23 @@ public class StoreUserListItem
     public string StoreName { get; set; } = string.Empty;
 }
 
-public class BlockUserRequest
+public class UserActionRequest
 {
     public Guid UserId { get; set; }
 }
 
-public class BlockUserResponse
+public class UserActionResponse
 {
     public Guid UserId { get; set; }
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
 }
 
-public class UnblockUserRequest
-{
-    public Guid UserId { get; set; }
-}
-
-public class UnblockUserResponse
-{
-    public Guid UserId { get; set; }
-    public bool Success { get; set; }
-    public string Message { get; set; } = string.Empty;
-}
+// Aliases for backward compatibility and clarity
+public class BlockUserRequest : UserActionRequest { }
+public class BlockUserResponse : UserActionResponse { }
+public class UnblockUserRequest : UserActionRequest { }
+public class UnblockUserResponse : UserActionResponse { }
 
 public class BlockStoreRequest
 {

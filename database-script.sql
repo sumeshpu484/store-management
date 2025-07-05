@@ -26,6 +26,10 @@ $$;
 -- This is required for the gen_random_uuid() function.
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Enable the pgcrypto extension for password hashing
+-- This is required for the crypt() and gen_salt() functions.
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- Drop existing tables in reverse order of dependencies to avoid foreign key constraint errors
 DROP TABLE IF EXISTS Products CASCADE;
 DROP TABLE IF EXISTS Categories CASCADE;
@@ -110,11 +114,8 @@ CREATE TABLE Users (
 -- Note: Not all users may be associated with a store, so store_id can be NULL for some roles (e.g., superadmin).
 -- 
 -- DEFAULT PASSWORDS (for testing only - change in production):
--- john_doe (superadmin): password123
--- jane_smith (store-maker): password123  
--- mike_jones (store-checker): password123
--- sarah_brown (warehouse-maker): password123
--- david_green (warehouse-checker): password123
+-- All users: password123 (generated using PostgreSQL's crypt function with BCrypt)
+-- Note: Each user will get a unique BCrypt hash even for the same password
 
 -- Using CTEs (Common Table Expressions) to make inserts more readable and robust
 WITH superadmin_role AS (SELECT role_id FROM Roles WHERE role_name = 'superadmin'),
@@ -125,11 +126,11 @@ WITH superadmin_role AS (SELECT role_id FROM Roles WHERE role_name = 'superadmin
      warehouse_maker_role AS (SELECT role_id FROM Roles WHERE role_name = 'warehouse-maker'),
      warehouse_checker_role AS (SELECT role_id FROM Roles WHERE role_name = 'warehouse-checker')
 INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
-VALUES ('john_doe', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'john.doe@example.com', TRUE, (SELECT role_id FROM superadmin_role), NULL),
-       ('jane_smith', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'jane.smith@example.com', TRUE, (SELECT role_id FROM store_maker_role), (SELECT store_id FROM main_street_store)),
-       ('mike_jones', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'mike.jones@example.com', TRUE, (SELECT role_id FROM store_checker_role), (SELECT store_id FROM downtown_plaza_store)),
-       ('sarah_brown', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'sarah.brown@example.com', TRUE, (SELECT role_id FROM warehouse_maker_role), NULL),
-       ('david_green', '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', 'david.green@example.com', TRUE, (SELECT role_id FROM warehouse_checker_role), NULL);
+VALUES ('john_doe', crypt('password123', gen_salt('bf', 11)), 'john.doe@example.com', TRUE, (SELECT role_id FROM superadmin_role), NULL),
+       ('jane_smith', crypt('password123', gen_salt('bf', 11)), 'jane.smith@example.com', TRUE, (SELECT role_id FROM store_maker_role), (SELECT store_id FROM main_street_store)),
+       ('mike_jones', crypt('password123', gen_salt('bf', 11)), 'mike.jones@example.com', TRUE, (SELECT role_id FROM store_checker_role), (SELECT store_id FROM downtown_plaza_store)),
+       ('sarah_brown', crypt('password123', gen_salt('bf', 11)), 'sarah.brown@example.com', TRUE, (SELECT role_id FROM warehouse_maker_role), NULL),
+       ('david_green', crypt('password123', gen_salt('bf', 11)), 'david.green@example.com', TRUE, (SELECT role_id FROM warehouse_checker_role), NULL);
 
 -- Stored Procedure (Function in PostgreSQL) to create a new store and default users
 CREATE OR REPLACE FUNCTION create_store_with_users(
@@ -164,7 +165,7 @@ BEGIN
     -- Create default 'store-maker' user for the new store
     INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
     VALUES (LOWER(REPLACE(_store_name, ' ', '')) || '_maker', -- e.g., 'newstore_maker'
-            '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', -- BCrypt hash for 'password123'
+            crypt('password123', gen_salt('bf', 11)), -- Generate proper BCrypt hash for 'password123'
             LOWER(REPLACE(_store_name, ' ', '')) || '_maker@example.com',
             TRUE,
             store_maker_role_id,
@@ -173,7 +174,7 @@ BEGIN
     -- Create default 'store-checker' user for the new store
     INSERT INTO Users (user_name, password_hash, email, is_active, role_id, store_id)
     VALUES (LOWER(REPLACE(_store_name, ' ', '')) || '_checker', -- e.g., 'newstore_checker'
-            '$2a$11$vV5KqJhE.vQ8QZDWXhT7F.Kv9dXaE/9R5xzJWcpzJdL.bT.bDCOHO', -- BCrypt hash for 'password123'
+            crypt('password123', gen_salt('bf', 11)), -- Generate proper BCrypt hash for 'password123'
             LOWER(REPLACE(_store_name, ' ', '')) || '_checker@example.com',
             TRUE,
             store_checker_role_id,

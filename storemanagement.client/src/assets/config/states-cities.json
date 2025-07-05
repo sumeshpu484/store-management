@@ -1,0 +1,94 @@
+{
+  "states": [
+    {
+      "id": "KL",
+      "name": "Kerala",
+      "cities": [
+        {
+          "id": "TVM",
+          "name": "Thiruvananthapuram"
+        },
+        {
+          "id": "EKM",
+          "name": "Ernakulam"
+        },
+        {
+          "id": "KTM",
+          "name": "Kozhikode"
+        },
+        {
+          "id": "TCR",
+          "name": "Thrissur"
+        },
+        {
+          "id": "KLM",
+          "name": "Kollam"
+        },
+        {
+          "id": "ALP",
+          "name": "Alappuzha"
+        }
+      ]
+    },
+    {
+      "id": "TN",
+      "name": "Tamil Nadu",
+      "cities": [
+        {
+          "id": "CHN",
+          "name": "Chennai"
+        },
+        {
+          "id": "CBE",
+          "name": "Coimbatore"
+        },
+        {
+          "id": "MDU",
+          "name": "Madurai"
+        },
+        {
+          "id": "TRY",
+          "name": "Tiruchirappalli"
+        },
+        {
+          "id": "SLM",
+          "name": "Salem"
+        },
+        {
+          "id": "TNV",
+          "name": "Tirunelveli"
+        }
+      ]
+    },
+    {
+      "id": "KA",
+      "name": "Karnataka",
+      "cities": [
+        {
+          "id": "BLR",
+          "name": "Bengaluru"
+        },
+        {
+          "id": "MYS",
+          "name": "Mysuru"
+        },
+        {
+          "id": "HBL",
+          "name": "Hubballi"
+        },
+        {
+          "id": "MNG",
+          "name": "Mangaluru"
+        },
+        {
+          "id": "BLG",
+          "name": "Belagavi"
+        },
+        {
+          "id": "GBG",
+          "name": "Kalaburagi"
+        }
+      ]
+    }
+  ]
+}

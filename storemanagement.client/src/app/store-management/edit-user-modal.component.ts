@@ -351,7 +351,7 @@ export class EditUserModalComponent implements OnInit {
   private populateForm(): void {
     this.userForm.patchValue({
       username: this.user.username,
-      email: this.user.email,
+      email: this.user.storeEmail,
       firstName: this.user.firstName || '',
       lastName: this.user.lastName || '',
       role: this.user.role,

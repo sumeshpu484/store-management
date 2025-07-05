@@ -71,7 +71,42 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Store App API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "Store Management API", 
+        Version = "v1",
+        Description = "API for managing stores, users, and authentication with default password information"
+    });
+    
+    // Include XML comments
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+    
+    // Add authentication to Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme (Example: 'Bearer [token]')",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 var app = builder.Build();
@@ -80,7 +115,9 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store App API v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store Management API v1");
+    c.DocumentTitle = "Store Management API Documentation";
+    c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
 });
 
 // Temporarily disabled Angular frontend serving for API-only development

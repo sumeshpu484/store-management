@@ -37,13 +37,15 @@ export interface ApiResponse {
   data?: any;
 }
 
-export interface CreateStoreRequest {
+export interface StoreRequest {
   storeName: string;
   address: string;
   city?: string;
   state?: string;
   zipCode?: string;
-  email: string;
+  storeEmail: string;
+  phone?: string;
+  storeKey?: string;
   isActive?: boolean;
 }
 
@@ -54,7 +56,7 @@ export interface StoreUser {
   userId?: string;
   username?: string;
   user_name?: string;
-  email?: string;
+  storeEmail?: string;
   firstName?: string;
   lastName?: string;
   role?: string;
@@ -116,7 +118,7 @@ export class StoreApiService {
   }
 
   // Create new store using SuperAdminController
-  createStore(request: CreateStoreRequest): Observable<ApiResponse> {
+  createStore(request: StoreRequest): Observable<ApiResponse> {
     return this.http.post<any>(`${this.apiUrl}/createStore`, request).pipe(
       map(response => ({
         success: true,
@@ -283,14 +285,22 @@ export class StoreApiService {
     }).pipe(delay(500));
   }
 
-  // Update store (placeholder - endpoint not implemented in backend yet)
-  updateStore(storeId: number, updateData: any): Observable<ApiResponse> {
-    // Note: The backend doesn't have a store update endpoint yet
-    // This is a placeholder implementation
-    return of({
-      success: false,
-      message: 'Store update functionality is not yet implemented in the backend API'
-    }).pipe(delay(500));
+  // Update store using SuperAdminController updateStore endpoint
+  updateStore(storeId: number, updateData: StoreRequest): Observable<ApiResponse> {
+    return this.http.put<any>(`${this.apiUrl}/updateStore/${storeId}`, updateData).pipe(
+      map(response => ({
+        success: response.Success || true,
+        message: response.Message || 'Store updated successfully',
+        store: this.transformStore(response.Store)
+      })),
+      catchError(error => {
+        console.error('Error updating store:', error);
+        return of({
+          success: false,
+          message: error.status === 404 ? 'Store not found' : 'Failed to update store'
+        });
+      })
+    );
   }
 
   // Transform store data from database format to UI format
@@ -300,8 +310,11 @@ export class StoreApiService {
     return {
       id: store.store_id || store.storeId || store.id,
       name: store.store_name || store.storeName || store.name,
-      address: this.formatAddress(store),
-      email: store.email,
+      address: store.address,
+      city: store.city,
+      state: store.state,
+      zipCode: store.zip_code || store.zipCode,
+      email: store.email || store.storeEmail,
       phone: store.phone,
       storeKey: store.store_key || store.storeKey || this.generateStoreKey(),
       isActive: store.is_active !== undefined ? store.is_active : store.isActive !== undefined ? store.isActive : true,

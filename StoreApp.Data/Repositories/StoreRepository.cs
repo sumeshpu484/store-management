@@ -27,7 +27,9 @@ public class StoreRepository : IStoreRepository
                 @City, 
                 @State, 
                 @ZipCode, 
-                @StoreEmail
+                @StoreEmail,
+                @Phone,
+                @StoreKey
             );
             
             SELECT role_id FROM roles WHERE role_name = 'store-maker';
@@ -40,7 +42,9 @@ public class StoreRepository : IStoreRepository
             request.City,
             request.State,
             request.ZipCode,
-            request.StoreEmail
+            request.StoreEmail,
+            request.Phone,
+            request.StoreKey
         });
 
         var storeId = await multi.ReadFirstAsync<int>();
@@ -63,7 +67,7 @@ public class StoreRepository : IStoreRepository
     {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
-        var sql = @"SELECT store_id AS StoreId, store_name AS StoreName, address, city, state, zip_code AS ZipCode, email AS StoreEmail, is_active AS IsActive, created_at AS CreatedAt FROM stores ORDER BY store_id;";
+        var sql = @"SELECT store_id AS StoreId, store_name AS StoreName, address, city, state, zip_code AS ZipCode, email AS StoreEmail, phone, store_key AS StoreKey, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt FROM stores ORDER BY store_id;";
         var stores = await connection.QueryAsync<StoreListItem>(sql);
         return stores;
     }
@@ -72,9 +76,49 @@ public class StoreRepository : IStoreRepository
     {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
-        var sql = @"SELECT store_id AS StoreId, store_name AS StoreName, address, city, state, zip_code AS ZipCode, email AS StoreEmail, is_active AS IsActive, created_at AS CreatedAt FROM stores WHERE store_id = @StoreId;";
+        var sql = @"SELECT store_id AS StoreId, store_name AS StoreName, address, city, state, zip_code AS ZipCode, email AS StoreEmail, phone, store_key AS StoreKey, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt FROM stores WHERE store_id = @StoreId;";
         var store = await connection.QueryFirstOrDefaultAsync<StoreListItem>(sql, new { StoreId = storeId });
         return store;
+    }
+
+    public async Task<StoreListItem?> UpdateStoreAsync(int storeId, UpdateStoreRequest request)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var updateSql = @"
+            UPDATE stores 
+            SET store_name = @StoreName,
+                address = @Address,
+                city = @City,
+                state = @State,
+                zip_code = @ZipCode,
+                email = @StoreEmail,
+                phone = @Phone,
+                store_key = @StoreKey,
+                is_active = @IsActive,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE store_id = @StoreId;";
+
+        var rowsAffected = await connection.ExecuteAsync(updateSql, new
+        {
+            StoreId = storeId,
+            request.StoreName,
+            request.Address,
+            request.City,
+            request.State,
+            request.ZipCode,
+            request.StoreEmail,
+            request.Phone,
+            request.StoreKey,
+            request.IsActive
+        });
+
+        if (rowsAffected == 0)
+            return null; // Store not found
+
+        // Return the updated store
+        return await GetStoreByIdAsync(storeId);
     }
 
     public async Task<CreateStoreUserResponse> CreateStoreUserAsync(CreateStoreUserRequest request)
@@ -165,7 +209,7 @@ public class StoreRepository : IStoreRepository
     {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
-        var sql = @"UPDATE stores SET is_active = FALSE WHERE store_id = @StoreId RETURNING store_id;";
+        var sql = @"UPDATE stores SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE store_id = @StoreId RETURNING store_id;";
         var storeId = await connection.ExecuteScalarAsync<int?>(sql, new { request.StoreId });
         if (storeId.HasValue)
         {

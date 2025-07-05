@@ -1,6 +1,100 @@
 @StoreApp.Server_HostAddress = http://localhost:5121
 
+### Weather Forecast Test
 GET {{StoreApp.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### Create Store with New Fields
+POST {{StoreApp.Server_HostAddress}}/superadmin/createStore
+Content-Type: application/json
+
+{
+  "storeName": "Tech Mart Kochi",
+  "address": "MG Road, Near Panampilly Nagar",
+  "city": "Kochi",
+  "state": "Kerala",
+  "zipCode": "682016",
+  "storeEmail": "kochi@techmart.com",
+  "phone": "9876543210",
+  "storeKey": "TM-KOCHI-001"
+}
+
+###
+
+### Get All Stores
+GET {{StoreApp.Server_HostAddress}}/superadmin/storelist
+Accept: application/json
+
+###
+
+### Get Store Details
+GET {{StoreApp.Server_HostAddress}}/superadmin/store/1
+Accept: application/json
+
+###
+
+### Update Store with New Fields
+PUT {{StoreApp.Server_HostAddress}}/superadmin/updateStore/1
+Content-Type: application/json
+
+{
+  "storeName": "Tech Mart Kochi Updated",
+  "address": "MG Road, Near Panampilly Nagar, Updated Location",
+  "city": "Kochi",
+  "state": "Kerala",
+  "zipCode": "682016",
+  "storeEmail": "kochi.updated@techmart.com",
+  "phone": "9876543211",
+  "storeKey": "TM-KOCHI-001-UPD",
+  "isActive": true
+}
+
+###
+
+### Create Store - Tamil Nadu
+POST {{StoreApp.Server_HostAddress}}/superadmin/createStore
+Content-Type: application/json
+
+{
+  "storeName": "Electronics Hub Chennai",
+  "address": "Anna Salai, T. Nagar",
+  "city": "Chennai",
+  "state": "Tamil Nadu",
+  "zipCode": "600017",
+  "storeEmail": "chennai@electronicshub.com",
+  "phone": "9876543212",
+  "storeKey": "EH-CHN-001"
+}
+
+###
+
+### Create Store - Karnataka
+POST {{StoreApp.Server_HostAddress}}/superadmin/createStore
+Content-Type: application/json
+
+{
+  "storeName": "Digital Store Bangalore",
+  "address": "Brigade Road, Commercial Street",
+  "city": "Bangalore",
+  "state": "Karnataka",
+  "zipCode": "560001",
+  "storeEmail": "bangalore@digitalstore.com",
+  "phone": "9876543213",
+  "storeKey": "DS-BLR-001"
+}
+
+###
+
+### Get All Users
+GET {{StoreApp.Server_HostAddress}}/superadmin/userlist
+Accept: application/json
+
+###
+
+### Get Store Users
+GET {{StoreApp.Server_HostAddress}}/superadmin/getStoreUsers/1
 Accept: application/json
 
 ###

@@ -9,6 +9,7 @@ public interface IStoreRepository
     Task<CreateStoreResponse> CreateStoreAsync(CreateStoreRequest request);
     Task<IEnumerable<StoreListItem>> GetAllStoresAsync();
     Task<StoreListItem?> GetStoreByIdAsync(int storeId);
+    Task<StoreListItem?> UpdateStoreAsync(int storeId, UpdateStoreRequest request);
     Task<CreateStoreUserResponse> CreateStoreUserAsync(CreateStoreUserRequest request);
     Task<IEnumerable<StoreUserListItem>> GetAllUsersAsync();
     Task<IEnumerable<StoreUserListItem>> GetUsersByStoreIdAsync(int storeId);

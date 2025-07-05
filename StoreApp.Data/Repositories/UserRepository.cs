@@ -137,24 +137,36 @@ public class UserRepository : IUserRepository
         var user = await GetUserByUsernameAsync(username);
         if (user == null)
         {
+            Console.WriteLine($"[DEBUG] ValidateUserCredentials: User '{username}' not found");
             return null;
         }
+        
         if (!user.IsActive)
         {
+            Console.WriteLine($"[DEBUG] ValidateUserCredentials: User '{username}' is inactive");
             return null;
         }
+        
         try
         {
+            Console.WriteLine($"[DEBUG] ValidateUserCredentials: Attempting to verify password for user '{username}'");
+            Console.WriteLine($"[DEBUG] Password hash starts with: {user.PasswordHash.Substring(0, Math.Min(15, user.PasswordHash.Length))}...");
+            
+            // Try BCrypt.Net verification first (handles both .NET generated and PostgreSQL crypt generated BCrypt hashes)
             var passwordVerified = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+            
             if (!passwordVerified)
             {
+                Console.WriteLine($"[DEBUG] ValidateUserCredentials: Password verification failed for user '{username}'");
                 return null; // Return null when password is WRONG
             }
             
+            Console.WriteLine($"[DEBUG] ValidateUserCredentials: Password verification successful for user '{username}'");
             return user; // Return user when password is CORRECT
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"[ERROR] ValidateUserCredentials: Exception during password verification for user '{username}': {ex.Message}");
             return null;
         }
     }
@@ -233,6 +245,16 @@ public class UserRepository : IUserRepository
         );
 
         return users.Distinct();
+    }
+
+    /// <summary>
+    /// Hashes a plain text password using BCrypt
+    /// </summary>
+    /// <param name="password">Plain text password</param>
+    /// <returns>BCrypt hashed password</returns>
+    public string HashPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password, 11);
     }
 
     public async Task<User> CreateUserAsync(User user)

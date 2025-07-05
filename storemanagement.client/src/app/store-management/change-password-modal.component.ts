@@ -38,7 +38,7 @@ import { StoreApiService, StoreUser } from '../services/store-api.service';
       <div class="user-info">
         <p><strong>User:</strong> {{ user.username }}</p>
         <p><strong>Role:</strong> {{ user.role | titlecase }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Email:</strong> {{ user.storeEmail }}</p>
       </div>
 
       <form [formGroup]="passwordForm" class="password-form">
