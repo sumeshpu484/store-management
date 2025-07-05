@@ -67,7 +67,22 @@ public class StoreRepository : IStoreRepository
     {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
-        var sql = @"SELECT store_id AS StoreId, store_name AS StoreName, address, city, state, zip_code AS ZipCode, email AS StoreEmail, phone, store_key AS StoreKey, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt FROM stores ORDER BY store_id;";
+        var sql = @"
+            SELECT 
+                store_id AS StoreId, 
+                store_name AS StoreName, 
+                address AS Address, 
+                city AS City, 
+                state AS State, 
+                zip_code AS ZipCode, 
+                email AS StoreEmail, 
+                phone AS Phone, 
+                store_key AS StoreKey, 
+                is_active AS IsActive, 
+                created_at AS CreatedAt, 
+                updated_at AS UpdatedAt 
+            FROM stores 
+            ORDER BY store_id;";
         var stores = await connection.QueryAsync<StoreListItem>(sql);
         return stores;
     }
@@ -76,7 +91,22 @@ public class StoreRepository : IStoreRepository
     {
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
-        var sql = @"SELECT store_id AS StoreId, store_name AS StoreName, address, city, state, zip_code AS ZipCode, email AS StoreEmail, phone, store_key AS StoreKey, is_active AS IsActive, created_at AS CreatedAt, updated_at AS UpdatedAt FROM stores WHERE store_id = @StoreId;";
+        var sql = @"
+            SELECT 
+                store_id AS StoreId, 
+                store_name AS StoreName, 
+                address AS Address, 
+                city AS City, 
+                state AS State, 
+                zip_code AS ZipCode, 
+                email AS StoreEmail, 
+                phone AS Phone, 
+                store_key AS StoreKey, 
+                is_active AS IsActive, 
+                created_at AS CreatedAt, 
+                updated_at AS UpdatedAt 
+            FROM stores 
+            WHERE store_id = @StoreId;";
         var store = await connection.QueryFirstOrDefaultAsync<StoreListItem>(sql, new { StoreId = storeId });
         return store;
     }

@@ -81,7 +81,10 @@ builder.Services.AddSwaggerGen(c =>
     // Include XML comments
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
     
     // Add authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -112,13 +115,27 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store Management API v1");
-    c.DocumentTitle = "Store Management API Documentation";
-    c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store Management API v1");
+        c.DocumentTitle = "Store Management API Documentation";
+        c.RoutePrefix = "swagger"; // Serve Swagger UI at /swagger
+    });
+}
+else
+{
+    // Also enable Swagger in other environments for API documentation
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store Management API v1");
+        c.DocumentTitle = "Store Management API Documentation";
+        c.RoutePrefix = "swagger"; // Serve Swagger UI at /swagger
+    });
+}
 
 // Temporarily disabled Angular frontend serving for API-only development
 // Uncomment these lines when you want to serve Angular with the API

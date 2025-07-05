@@ -225,6 +225,21 @@ namespace StoreApp.Server.Controllers
         }
 
         /// <summary>
+        /// Test endpoint to verify API is working
+        /// </summary>
+        /// <returns>Simple test response</returns>
+        [HttpGet("test")]
+        [ProducesResponseType(200)]
+        public IActionResult Test()
+        {
+            return Ok(new { 
+                message = "API is working!", 
+                timestamp = DateTime.UtcNow,
+                swagger_url = "/swagger"
+            });
+        }
+
+        /// <summary>
         /// Reset a user's password and send new password via email
         /// </summary>
         /// <param name="request">Password reset request containing user ID</param>
