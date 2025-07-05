@@ -619,9 +619,19 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       display: flex;
       align-items: center;
       justify-content: center;
+      min-width: 32px;
+      min-height: 32px;
     }
 
-    .action-buttons mat-icon {
+    .action-buttons button[color="primary"] mat-icon {
+      color: #1976d2 !important;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .action-buttons button[color="accent"] mat-icon {
+      color: #ff4081 !important;
       font-size: 18px;
       width: 18px;
       height: 18px;

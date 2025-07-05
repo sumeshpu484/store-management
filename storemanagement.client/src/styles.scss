@@ -418,3 +418,122 @@ button[mat-raised-button] {
     }
   }
 }
+
+// Table Action Icons - Ensure visibility across all themes
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  
+  button[mat-icon-button] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    
+    // Primary action buttons (edit, view, manage, etc.)
+    &[color="primary"] {
+      .mat-icon {
+        color: #1976d2 !important;
+        font-size: 18px !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+      
+      &:hover {
+        background-color: rgba(25, 118, 210, 0.1) !important;
+      }
+    }
+    
+    // Accent action buttons (view details, etc.)
+    &[color="accent"] {
+      .mat-icon {
+        color: #ff4081 !important;
+        font-size: 18px !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+      
+      &:hover {
+        background-color: rgba(255, 64, 129, 0.1) !important;
+      }
+    }
+    
+    // Warning action buttons (delete, etc.)
+    &[color="warn"] {
+      .mat-icon {
+        color: #f44336 !important;
+        font-size: 18px !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+      
+      &:hover {
+        background-color: rgba(244, 67, 54, 0.1) !important;
+      }
+    }
+    
+    // Default buttons without color attribute
+    &:not([color]) {
+      .mat-icon {
+        color: #666 !important;
+        font-size: 18px !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+      
+      &:hover {
+        background-color: rgba(102, 102, 102, 0.1) !important;
+      }
+    }
+    
+    // Common icon styles for all action buttons
+    .mat-icon {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: color 0.3s ease !important;
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
+    }
+  }
+}
+
+// Mat-table specific action button overrides
+mat-table {
+  .action-buttons {
+    button[mat-icon-button] {
+      .mat-icon {
+        // Ensure icons are always visible in tables regardless of theme
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
+  }
+}
+
+// Theme-specific overrides for table actions
+body.theme-dark-purple,
+body.theme-midnight-dark {
+  .action-buttons {
+    button[mat-icon-button] {
+      &[color="primary"] .mat-icon {
+        color: #90caf9 !important; // Lighter blue for dark themes
+      }
+      
+      &[color="accent"] .mat-icon {
+        color: #f48fb1 !important; // Lighter pink for dark themes
+      }
+      
+      &[color="warn"] .mat-icon {
+        color: #ef5350 !important; // Lighter red for dark themes
+      }
+      
+      &:not([color]) .mat-icon {
+        color: #bbb !important; // Lighter gray for dark themes
+      }
+    }
+  }
+}

@@ -20,32 +20,36 @@ WHERE user_name IN ('john_doe', 'jane_smith', 'testuser', 'admin', 'manager')
 ORDER BY user_name;
 
 -- Generate a fresh hash using the SAME logic (run HashGenerator first to get this value)
--- Replace this placeholder with the actual hash from HashGenerator output
--- PLACEHOLDER_HASH will be replaced with actual hash from HashGenerator
+-- Using the verified working hash: $2a$11$.ndNFwUJLmj6MGpxJRjtveo192M0iUsZRrX0m5N9ayvOUUJzNOA7i
 
--- Update jane_smith specifically (the problematic user)
-UPDATE Users SET password_hash = '$2a$11$.ndNFwUJLmj6MGpxJRjtveo192M0iUsZRrX0m5N9ayvOUUJzNOA7i' WHERE user_name = 'jane_smith';
+-- Update ALL users with the same working hash for consistency
+UPDATE Users 
+SET password_hash = '$2a$11$.ndNFwUJLmj6MGpxJRjtveo192M0iUsZRrX0m5N9ayvOUUJzNOA7i'
+WHERE user_name IN ('john_doe', 'jane_smith', 'testuser', 'admin', 'manager');
 
--- Update all users to ensure consistency (optional)
-UPDATE Users SET password_hash = '$2a$11$.ndNFwUJLmj6MGpxJRjtveo192M0iUsZRrX0m5N9ayvOUUJzNOA7i' WHERE user_name IN ('john_doe', 'jane_smith', 'testuser', 'admin', 'manager');
-
--- Ensure all users are active
+-- Ensure ALL users are active
 UPDATE Users 
 SET is_active = TRUE 
 WHERE user_name IN ('john_doe', 'jane_smith', 'testuser', 'admin', 'manager');
 
--- Create jane_smith if she doesn't exist (just in case)
+-- Create any missing users with the same hash
 INSERT INTO Users (user_id, user_name, password_hash, email, is_active, role_id, store_id, created_at)
 SELECT 
     gen_random_uuid(),
-    'jane_smith',
+    missing_user.user_name,
     '$2a$11$.ndNFwUJLmj6MGpxJRjtveo192M0iUsZRrX0m5N9ayvOUUJzNOA7i',
-    'jane.smith@example.com',
+    missing_user.email,
     TRUE,
-    2, -- Assuming role_id 2 exists
+    2, -- Default role_id
     NULL,
     NOW()
-WHERE NOT EXISTS (SELECT 1 FROM Users WHERE user_name = 'jane_smith');
+FROM (
+    VALUES 
+        ('jane_smith', 'jane.smith@example.com'),
+        ('admin', 'admin@example.com'),
+        ('manager', 'manager@example.com')
+) AS missing_user(user_name, email)
+WHERE NOT EXISTS (SELECT 1 FROM Users WHERE Users.user_name = missing_user.user_name);
 
 -- Verify the updates
 SELECT 'AFTER UPDATE - VERIFICATION:' as debug_step;
@@ -67,6 +71,7 @@ ORDER BY user_name;
 -- Instructions for use:
 -- 1. ✅ HashGenerator program has been run
 -- 2. ✅ Generated hash: $2a$11$.ndNFwUJLmj6MGpxJRjtveo192M0iUsZRrX0m5N9ayvOUUJzNOA7i
--- 3. ✅ Hash has been applied to this script
+-- 3. ✅ Hash has been applied to ALL users in this script
 -- 4. 🔧 Run this SQL script in your PostgreSQL database
--- 5. 🧪 Test login with username: jane_smith, password: password123
+-- 5. 🧪 Test login with ANY username and password: password123
+-- 6. 🎯 ALL users (john_doe, jane_smith, testuser, admin, manager) will have the SAME working hash
