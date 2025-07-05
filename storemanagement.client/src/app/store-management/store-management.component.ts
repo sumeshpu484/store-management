@@ -627,24 +627,6 @@ import { ConfirmationModalComponent } from '../shared/confirmation-modal.compone
       height: 18px;
     }
 
-    /* Ensure action button icons are visible with proper colors */
-    .action-buttons button[color="primary"] mat-icon {
-      color: #1976d2 !important;
-    }
-
-    .action-buttons button[color="accent"] mat-icon {
-      color: #f57c00 !important;
-    }
-
-    .action-buttons button[color="warn"] mat-icon {
-      color: #d32f2f !important;
-    }
-
-    /* For buttons without explicit color attribute */
-    .action-buttons button:not([color]) mat-icon {
-      color: #424242 !important;
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
       .store-management-container {
