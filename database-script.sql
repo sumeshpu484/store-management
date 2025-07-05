@@ -217,6 +217,7 @@ VALUES ('Groceries', 'Food and beverage items.', 'GROC', TRUE);
 -- Create the 'Products' table
 CREATE TABLE Products (
     product_id SERIAL PRIMARY KEY,              -- Unique identifier for the product
+    product_sku VARCHAR(100) NOT NULL UNIQUE,   -- Stock Keeping Unit (SKU), must be unique
     name VARCHAR(255) NOT NULL UNIQUE,          -- Name of the product, must be unique
     description TEXT,                           -- Description of the product
     units VARCHAR(50) NOT NULL,                 -- Unit of measurement (e.g., 'pcs', 'kg', 'liter')
@@ -230,19 +231,25 @@ CREATE TABLE Products (
     FOREIGN KEY (category_id) REFERENCES Categories(category_id) -- Defines the foreign key relationship
 );
 
+-- Add indexes for Products table
+CREATE INDEX idx_products_sku ON Products(product_sku);
+CREATE INDEX idx_products_name ON Products(name);
+CREATE INDEX idx_products_category_id ON Products(category_id);
+
 -- Add 10 dummy data entries into the 'Products' table.
 -- Using ON CONFLICT (name) DO NOTHING for idempotency.
 -- We dynamically fetch category_id based on category code.
-
-INSERT INTO Products (name, description, units, minimum_stock, maximum_stock, current_stock, category_id, is_active)
+INSERT INTO Products (product_sku, name, description, units, minimum_stock, maximum_stock, current_stock, category_id, is_active)
 VALUES
-    ('Smartphone X', 'Latest model smartphone with advanced features.', 'pcs', 10, 200, 150, (SELECT category_id FROM Categories WHERE code = 'ELEC'), TRUE),
-    ('Laptop Pro', 'High-performance laptop for professionals.', 'pcs', 5, 100, 80, (SELECT category_id FROM Categories WHERE code = 'ELEC'), TRUE),
-    ('T-Shirt Basic', 'Comfortable cotton t-shirt, various colors.', 'pcs', 50, 500, 300, (SELECT category_id FROM Categories WHERE code = 'APRL'), TRUE),
-    ('Jeans Slim Fit', 'Stylish slim fit jeans for everyday wear.', 'pcs', 30, 300, 180, (SELECT category_id FROM Categories WHERE code = 'APRL'), TRUE),
-    ('Coffee Maker', 'Automatic drip coffee maker with timer.', 'pcs', 8, 150, 100, (SELECT category_id FROM Categories WHERE code = 'HOME'), TRUE),
-    ('Blender Pro', 'Powerful blender for smoothies and shakes.', 'pcs', 7, 120, 75, (SELECT category_id FROM Categories WHERE code = 'HOME'), TRUE),
-    ('Science Fiction Novel', 'Award-winning sci-fi novel.', 'pcs', 20, 100, 60, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
-    ('Cookbook Italian', 'Traditional Italian recipes cookbook.', 'pcs', 15, 80, 40, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
-    ('Organic Apples', 'Fresh, organic apples (per kg).', 'kg', 100, 500, 250, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE),
-    ('Whole Milk', 'Pasteurized whole milk (per liter).', 'liter', 200, 1000, 600, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE);
+    ('ELEC-SP-001', 'Smartphone X', 'Latest model smartphone with advanced features.', 'pcs', 10, 200, 150, (SELECT category_id FROM Categories WHERE code = 'ELEC'), TRUE),
+    ('ELEC-LP-001', 'Laptop Pro', 'High-performance laptop for professionals.', 'pcs', 5, 100, 80, (SELECT category_id FROM Categories WHERE code = 'ELEC'), TRUE),
+    ('APRL-TS-001', 'T-Shirt Basic', 'Comfortable cotton t-shirt, various colors.', 'pcs', 50, 500, 300, (SELECT category_id FROM Categories WHERE code = 'APRL'), TRUE),
+    ('APRL-JN-001', 'Jeans Slim Fit', 'Stylish slim fit jeans for everyday wear.', 'pcs', 30, 300, 180, (SELECT category_id FROM Categories WHERE code = 'APRL'), TRUE),
+    ('HOME-CM-001', 'Coffee Maker', 'Automatic drip coffee maker with timer.', 'pcs', 8, 150, 100, (SELECT category_id FROM Categories WHERE code = 'HOME'), TRUE),
+    ('HOME-BL-001', 'Blender Pro', 'Powerful blender for smoothies and shakes.', 'pcs', 7, 120, 75, (SELECT category_id FROM Categories WHERE code = 'HOME'), TRUE),
+    ('BOOK-SF-001', 'Science Fiction Novel', 'Award-winning sci-fi novel.', 'pcs', 20, 100, 60, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
+    ('BOOK-CB-001', 'Cookbook Italian', 'Traditional Italian recipes cookbook.', 'pcs', 15, 80, 40, (SELECT category_id FROM Categories WHERE code = 'BOOK'), TRUE),
+    ('GROC-AP-001', 'Organic Apples', 'Fresh, organic apples (per kg).', 'kg', 100, 500, 250, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE),
+    ('GROC-ML-001', 'Whole Milk', 'Pasteurized whole milk (per liter).', 'liter', 200, 1000, 600, (SELECT category_id FROM Categories WHERE code = 'GROC'), TRUE)
+ON CONFLICT (product_sku) DO NOTHING;
+

@@ -13,6 +13,8 @@ namespace StoreApp.Server
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IStoreRepository, StoreRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IDispatchRepository, DispatchRepository>();
+            services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
             // Register services
             services.AddScoped<IAuthService, AuthService>();

@@ -4,14 +4,8 @@ using System.Threading.Tasks;
 
 namespace StoreApp.Data.Repositories;
 
-public interface IProductRequestRepository
+public interface IDispatchRepository
 {
-    Task<int> CreateProductRequestAsync(CreateProductRequestRequest request);
-    Task<bool> ApproveProductRequestAsync(ApproveProductRequestRequest request);
-    Task<bool> RejectProductRequestAsync(RejectProductRequestRequest request);
-    Task<ProductRequestResponse?> GetProductRequestByIdAsync(int requestId);
-    Task<IEnumerable<ProductRequestAuditLogResponse>> GetProductRequestAuditLogAsync(int requestId);
-
     Task<int> CreateDispatchAsync(CreateDispatchRequest request);
     Task<bool> ApproveDispatchAsync(ApproveDispatchRequest request);
     Task<bool> RejectDispatchAsync(RejectDispatchRequest request);
